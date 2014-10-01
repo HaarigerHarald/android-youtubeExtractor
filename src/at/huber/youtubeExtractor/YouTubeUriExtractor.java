@@ -179,6 +179,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 			if (mat.find()){
 				decipherFunctUrl=mat.group(0).replace("\\/", "/");
 			}
+			streams=streamMap.split(",");
 
 		}else{
 			patTitle=Pattern.compile("title=(.*?)[&]");
@@ -188,8 +189,9 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 			}
 
 			streamMap=URLDecoder.decode(streamMap, "UTF-8");
+			streams=streamMap.split(",|%3B");
 		}
-		streams=streamMap.split(",");
+		
 		SparseArray<YtFile> ytFiles=new SparseArray<YtFile>();
 		for(String encStream : streams){
 			encStream=encStream + ",";
