@@ -2,7 +2,7 @@ A small android based Youtube uri extractor.
 =======================================================
 
 These are the literal uris to the Youtube video or audio files, so you can stream or download them.
-It features an age verification workaround and a signature deciphering method (mainly for vevo videos).
+It features an age verification circumvention and a signature deciphering method (mainly for vevo videos).
 
 I've made a little jar lib which should make integration super easy: [youtubeExtractor.jar](https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/bin/youtubeExtractor.jar)
 
