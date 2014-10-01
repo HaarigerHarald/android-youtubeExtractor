@@ -89,10 +89,10 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 
 	@Override
 	protected void onPostExecute(SparseArray<YtFile> ytFiles) {
-		onSourcesAvailable(youtubeID, videoTitle, ytFiles);
+		onUrisAvailable(youtubeID, videoTitle, ytFiles);
 	}
 
-	public abstract void onSourcesAvailable(String videoId, String videoTitle, SparseArray<YtFile> ytFiles);
+	public abstract void onUrisAvailable(String videoId, String videoTitle, SparseArray<YtFile> ytFiles);
 
 	@Override
 	protected SparseArray<YtFile> doInBackground(String... params) {
@@ -221,7 +221,6 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 					Log.d(getClass().getSimpleName(), "Decypher signature: " + mat.group(1));
 					decipheredSignature=null;
 					if (decipherSignature(mat.group(1), decipherFunctUrl, client)){
-						;
 						lock.lock();
 						try{
 							jsExecuting.await(3, TimeUnit.SECONDS);

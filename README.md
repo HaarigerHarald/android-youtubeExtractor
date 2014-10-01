@@ -14,7 +14,7 @@ It's basically build around an AsyncTask. Called from an Activity you can write 
     
     YouTubeUriExtractor ytEx = new YouTubeUriExtractor(this) {
         @Override
-        public void onSourcesAvailable(String videoId, String videoTitle, SparseArray<YtFile> ytFiles) {
+        public void onUrisAvailable(String videoId, String videoTitle, SparseArray<YtFile> ytFiles) {
             if(ytFiles!=null){
                 int itag = 22;
                 // itag is a Youtube format identifier, 22 for example is mp4 h264 1280x720

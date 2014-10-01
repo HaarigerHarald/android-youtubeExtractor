@@ -64,7 +64,7 @@ public class SampleDownloadActivity extends Activity {
 		YouTubeUriExtractor ytEx=new YouTubeUriExtractor(this) {
 
 			@Override
-			public void onSourcesAvailable(String videoId, String videoTitle, SparseArray<YtFile> ytFiles) {
+			public void onUrisAvailable(String videoId, String videoTitle, SparseArray<YtFile> ytFiles) {
 				mainProgressBar.setVisibility(View.GONE);
 				
 				if(ytFiles==null){
@@ -75,7 +75,7 @@ public class SampleDownloadActivity extends Activity {
 				//Iterate over itags
 				for(int i=0, itag=0; i < ytFiles.size(); i++){
 					itag=ytFiles.keyAt(i);
-					//source represents one download link with its meta data
+					//ytFile represents one file with its uri and meta data
 					YtFile ytFile=ytFiles.get(itag);
 					
 					//Ignore the google proprietary webm format
