@@ -31,6 +31,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 	private Activity calledActivity;
 	private String videoTitle="youtube";
 	private String youtubeID="";
+	private JsEvaluator js;
 
 	private volatile String decipheredSignature;
 	private static String decipherFunctions;
@@ -38,7 +39,6 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 
 	private final static Lock lock=new ReentrantLock();
 	private final static Condition jsExecuting=lock.newCondition();
-	private static JsEvaluator js;
 
 	private static final Pattern patItag=Pattern.compile("itag=([0-9]+?)[&]");
 	private static final Pattern patSig=Pattern.compile("signature=(.+?)[&|,|\\\\]");
@@ -116,7 +116,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		try{
 			return getStreamUrls(ytUrl);
 		}catch (Exception e){
-			Log.d(getClass().getSimpleName(), e.getMessage());
+			e.printStackTrace();
 		}
 		return null;
 	}
@@ -144,17 +144,6 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		if (streamMap == null || !streamMap.contains("use_cipher_signature=False")){
 			// Get the video directly from the youtubepage
 
-			// We'll start the Chromium jsEvaluator right away cause it needs
-			// some time.
-			if (js == null){
-				calledActivity.runOnUiThread(new Runnable() {
-
-					@Override
-					public void run() {
-						js=new JsEvaluator(calledActivity);
-					}
-				});
-			}
 			request=new HttpGet(ytUrl);
 			response=client.execute(request);
 			in=response.getEntity().getContent();
@@ -195,7 +184,12 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		SparseArray<YtFile> ytFiles=new SparseArray<YtFile>();
 		for(String encStream : streams){
 			encStream=encStream + ",";
-			String stream=URLDecoder.decode(encStream, "UTF-8");
+			String stream;
+			try{
+				stream=URLDecoder.decode(encStream, "UTF-8");
+			}catch(IllegalArgumentException iae){
+				continue;
+			}
 
 			mat=patItag.matcher(stream);
 			int itag=-1;
@@ -356,6 +350,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 
 			@Override
 			public void run() {
+				js=new JsEvaluator(calledActivity);
 				js.evaluate(decipherFunctions + " " + decipherFunctionName + "('" + sig + "');",
 					new JsCallback() {
 						@Override

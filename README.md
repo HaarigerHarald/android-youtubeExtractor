@@ -35,7 +35,7 @@ app to download Youtube videos. It doesn't have a launcher entry though so don't
 
 To try the app have a look at: [youtubeDownloader.apk](https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/bin/youtubeDownloader.apk)
 
-<img src='https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/Screenshot_2014-09-30-21-12-16.png' width='250' alt='youtubeDownloader Screenshot 1'>
+<img src='https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/Screenshot_2014-10-02-02-10-48.png' width='250' alt='youtubeDownloader Screenshot 1'>
 
 <img src='https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/Screenshot_2014-09-30-21-12-34.png' width='250' alt='youtubeDownloader Screenshot 2'>
 
