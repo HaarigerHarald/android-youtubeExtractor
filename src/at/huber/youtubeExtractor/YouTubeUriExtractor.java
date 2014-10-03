@@ -34,6 +34,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 	private JsEvaluator js;
 
 	private volatile String decipheredSignature;
+	
 	private static String decipherFunctions;
 	private static String decipherFunctionName;
 
@@ -350,7 +351,9 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 
 			@Override
 			public void run() {
-				js=new JsEvaluator(calledActivity);
+				if(js==null){
+					js=new JsEvaluator(calledActivity);
+				}
 				js.evaluate(decipherFunctions + " " + decipherFunctionName + "('" + sig + "');",
 					new JsCallback() {
 						@Override
