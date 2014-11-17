@@ -50,7 +50,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 			.compile("(\\{|;| |=)(([a-zA-Z]{1}[a-zA-Z0-9]{0,2}))\\.([a-zA-Z]{1}[a-zA-Z0-9]{0,2})\\(");
 	private static final Pattern patFunction=Pattern.compile("(\\{|;| |=)(([a-zA-Z]{1}[a-zA-Z0-9]{0,2}))\\(");
 	private static final Pattern patDecryptionJsFile=Pattern.compile("html5player-(.+?).js");
-	private static final Pattern patSignatureDecFunction=Pattern.compile("(signature|sig)=((.+?))\\(");
+	private static final Pattern patSignatureDecFunction=Pattern.compile("\\(\"signature\",((.+?))\\(");
 
 	public static final SparseArray<Meta> META_MAP=new SparseArray<Meta>();
 	static{
