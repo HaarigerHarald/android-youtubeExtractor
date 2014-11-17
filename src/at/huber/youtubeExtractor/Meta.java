@@ -2,22 +2,10 @@ package at.huber.youtubeExtractor;
 
 public class Meta {
 
-	/**
-	 * An identifier used by youtube for different formats.
-	 */
-	public int itag;
-	/**
-	 * The file extension and conainer format.
-	 */
-	public String ext;
-	/**
-	 * General info about the meta data like dash 1280x720 or dash audio aac
-	 */
-	public String info;
-	/**
-	 * The height of the video stream or -1 for audio files.
-	 */
-	public int height;
+	int itag;
+	String ext;
+	String info;
+	int height;
 
     Meta(int itag, String ext, String info, int height) {
     	this.itag=itag;
@@ -25,4 +13,32 @@ public class Meta {
         this.ext = ext;
         this.height=height;
     }
+    
+    /**
+	 * An identifier used by youtube for different formats.
+	 */
+    public int getItag(){
+    	return itag;
+    }
+    
+    /**
+	 * The file extension and conainer format like "mp4"
+	 */
+	public String getExt() {
+		return ext;
+	}
+	/**
+	 * General info about the meta data like "dash 1280x720" or "dash audio aac"
+	 */
+	public String getInfo() {
+		return info;
+	}
+
+	/**
+	 * The height of the video stream or -1 for audio files.
+	 */
+	public int getHeight() {
+		return height;
+	}
+	
 }

@@ -26,38 +26,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain"/>
             </intent-filter>
-            <intent-filter>
-            	<action android:name="android.intent.action.VIEW" />
-            	<category android:name="android.intent.category.DEFAULT" />
-            	<category android:name="android.intent.category.BROWSABLE" />
-           	 <data android:scheme="http"
-                android:host="youtube.com"
-                android:pathPattern=".*/watch.*"/>
-           	 <data android:scheme="http"
-                android:host="www.youtube.com"
-           	 	android:pathPattern=".*/watch.*"/>
-           	 <data android:scheme="http"
-                android:host="m.youtube.com"
-                android:pathPattern=".*/watch.*"/>
-           	 <data android:scheme="http"
-                android:host="www.m.youtube.com"
-           	 	android:pathPattern=".*/watch.*"/>
-           	 <data android:scheme="https"
-                android:host="youtube.com"
-                android:pathPattern=".*/watch.*"/>
-           	 <data android:scheme="https"
-                android:host="www.youtube.com"
-           	 	android:pathPattern=".*/watch.*"/>
-           	 <data android:scheme="https"
-                android:host="m.youtube.com"
-                android:pathPattern=".*/watch.*"/>
-           	 <data android:scheme="https"
-                android:host="www.m.youtube.com"
-           	 	android:pathPattern=".*/watch.*"/>
-           	 <data android:scheme="http"
-                android:host="youtu.be"
-           	 	android:pathPattern=".*/.*"/>
-        	</intent-filter>
             
         </activity>
     </application>

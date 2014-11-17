@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,8 +16,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import at.huber.youtubeExtractor.R;
-import at.huber.youtubeExtractor.YtFile;
 import at.huber.youtubeExtractor.YouTubeUriExtractor;
+import at.huber.youtubeExtractor.YtFile;
 
 public class SampleDownloadActivity extends Activity {
 	
@@ -29,30 +28,25 @@ public class SampleDownloadActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		setContentView(R.layout.activity_sample_download);
 		mainLayout=(LinearLayout)findViewById(R.id.main_layout);
 		mainProgressBar=(ProgressBar)findViewById(R.id.prgrBar);
 		activityContext=this;
 		
 		//Check how it was started and if we can get the youtubelink somehow
-		if (savedInstanceState == null && ((Intent.ACTION_SEND.equals(getIntent().getAction()) && getIntent().getType() != null) || 
-				Intent.ACTION_VIEW.equals(getIntent().getAction()))) {
-			String youtubeLink=null;
-			if(Intent.ACTION_SEND.equals(getIntent().getAction()) && "text/plain".equals(getIntent().getType())){
-				youtubeLink=getIntent().getStringExtra(Intent.EXTRA_TEXT);
-			}else if(Intent.ACTION_VIEW.equals(getIntent().getAction())){
-				youtubeLink=getIntent().getDataString();
-			}
+		if (savedInstanceState == null && Intent.ACTION_SEND.equals(getIntent().getAction())
+				&& getIntent().getType() != null && "text/plain".equals(getIntent().getType())){
 			
-			if (youtubeLink != null && (youtubeLink.contains("http://youtu.be/") || youtubeLink
-							.contains("youtube.com/watch?v="))){
-				//We have a valid link such as: http://youtu.be/xxxx or http://youtube.com/watch?v=xxxx
+			String youtubeLink=getIntent().getStringExtra(Intent.EXTRA_TEXT);
+
+			if (youtubeLink != null && (youtubeLink.contains("http://youtu.be/") || 
+					youtubeLink.contains("youtube.com/watch?v="))){
+				// We have a valid link such as: http://youtu.be/xxxx or
+				// http://youtube.com/watch?v=xxxx
 				getYoutubeDownloadUrl(youtubeLink);
 			}else{
 				Toast.makeText(this, R.string.error_no_yt_link, Toast.LENGTH_LONG).show();
-				if (youtubeLink != null){
-					Log.d("Link:", youtubeLink);
-				}
 				finish();
 			}
 		}else{
@@ -79,9 +73,9 @@ public class SampleDownloadActivity extends Activity {
 					YtFile ytFile=ytFiles.get(itag);
 					
 					//Ignore the google proprietary webm format
-					if(!ytFile.meta.ext.equalsIgnoreCase("webm")){
+					if(!ytFile.getMeta().getExt().equalsIgnoreCase("webm")){
 						//Just add videos in a decent format => height -1 = audio
-						if(ytFile.meta.height>0 && ytFile.meta.height<360){
+						if(ytFile.getMeta().getHeight()>0 && ytFile.getMeta().getHeight()<360){
 							continue;
 						}
 						addButtonToMainLayout(videoTitle, ytFile);
@@ -97,19 +91,19 @@ public class SampleDownloadActivity extends Activity {
 	private void addButtonToMainLayout(final String videoTitle, final YtFile ytfile){
 		//Lets display some buttons to let the user choose the format he wants to download
 		Button btn=new Button(activityContext);
-		btn.setText(ytfile.meta.info);
+		btn.setText(ytfile.getMeta().getInfo());
 		btn.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				String filename;
 				if (videoTitle.length() > 55){
-					filename=videoTitle.substring(0, 55) + "." + ytfile.meta.ext;
+					filename=videoTitle.substring(0, 55) + "." + ytfile.getMeta().getExt();
 				}else{
-					filename=videoTitle + "." + ytfile.meta.ext;
+					filename=videoTitle + "." + ytfile.getMeta().getExt();
 				}
 				filename=filename.replaceAll("\\\\|>|<|\"|\\||\\*|\\?|%|:", "");
-				downloadFromUrl(ytfile.url, videoTitle, filename);
+				downloadFromUrl(ytfile.getUrl(), videoTitle, filename);
 				finish();
 			}
 		});
