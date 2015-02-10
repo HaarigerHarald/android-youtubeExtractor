@@ -1,9 +1,14 @@
 package at.huber.youtubeExtractor;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.concurrent.TimeUnit;
@@ -18,8 +23,10 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -28,13 +35,19 @@ import com.evgenii.jsevaluator.interfaces.JsCallback;
 
 public abstract class YouTubeUriExtractor extends AsyncTask<String, String, SparseArray<YtFile>> {
 
-	private Activity calledActivity;
+	private final static boolean CACHING=true;
+	private final static boolean LOGGING=false;
+	private final static String CACHE_FILE_NAME="decipher_js_funct";
+
+	private Context context;
 	private String videoTitle="youtube";
 	private String youtubeID="";
 	private JsEvaluator js;
+	private boolean includeWebM=true;
 
 	private volatile String decipheredSignature;
-	
+
+	private static String decipherJsFileName;
 	private static String decipherFunctions;
 	private static String decipherFunctionName;
 
@@ -83,8 +96,8 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		META_MAP.put(171, new Meta(171, "webm", "dash audio aac", -1));
 	}
 
-	public YouTubeUriExtractor(Activity act) {
-		calledActivity=act;
+	public YouTubeUriExtractor(Context con) {
+		context=con;
 	}
 
 	@Override
@@ -136,13 +149,17 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		reader.close();
 		Pattern patTitle;
 		Matcher mat;
-		String decipherFunctUrl=null;
+		String curJsFileName=null;
 		String[] streams;
 
 		// Some videos are using a ciphered signature we need to get the
 		// deciphering js-file from the youtubepage.
 		if (streamMap == null || !streamMap.contains("use_cipher_signature=False")){
 			// Get the video directly from the youtubepage
+			if (CACHING
+					&& (decipherJsFileName == null || decipherFunctions == null || decipherFunctionName == null)){
+				readDecipherFunctFromCache();
+			}
 
 			request=new HttpGet(ytUrl);
 			response=client.execute(request);
@@ -158,20 +175,25 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 			in.close();
 			reader.close();
 
-			patTitle=Pattern.compile("\"title\": \"(.*?)(?<!\\\\)\"");
-			mat=patTitle.matcher(streamMap);
-			if (mat.find()){
-				videoTitle=mat.group(1);
+			patTitle= Pattern.compile("\"title\":( |)\"((.*?))(?<!\\\\)\"");
+			mat= patTitle.matcher(streamMap);
+			if(mat.find()){
+				videoTitle=mat.group(2);
 				videoTitle=videoTitle.replace("\\\"", "\"");
 			}
 			mat=patDecryptionJsFile.matcher(streamMap);
 			if (mat.find()){
-				decipherFunctUrl=mat.group(0).replace("\\/", "/");
+				curJsFileName=mat.group(0).replace("\\/", "/");
+				if (decipherJsFileName == null || !decipherJsFileName.equals(curJsFileName)){
+					decipherFunctions=null;
+					decipherFunctionName=null;
+				}
+				decipherJsFileName=curJsFileName;
 			}
 			streams=streamMap.split(",");
 
 		}else{
-			patTitle=Pattern.compile("title=(.*?)[&]");
+			patTitle=Pattern.compile("title=(.*?)[&|$]");
 			mat=patTitle.matcher(streamMap);
 			if (mat.find()){
 				videoTitle=URLDecoder.decode(mat.group(1), "UTF-8");
@@ -180,14 +202,14 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 			streamMap=URLDecoder.decode(streamMap, "UTF-8");
 			streams=streamMap.split(",|%3B");
 		}
-		
+
 		SparseArray<YtFile> ytFiles=new SparseArray<YtFile>();
 		for(String encStream : streams){
 			encStream=encStream + ",";
 			String stream;
 			try{
 				stream=URLDecoder.decode(encStream, "UTF-8");
-			}catch(IllegalArgumentException iae){
+			}catch (IllegalArgumentException iae){
 				continue;
 			}
 
@@ -195,8 +217,11 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 			int itag=-1;
 			if (mat.find()){
 				itag=Integer.parseInt(mat.group(1));
-				Log.d(getClass().getSimpleName(), "Itag found:" + itag);
+				if(LOGGING)
+					Log.d(getClass().getSimpleName(), "Itag found:" + itag);
 				if (META_MAP.get(itag) == null){
+					continue;
+				}else if(!includeWebM && META_MAP.get(itag).ext.equals("webm")){
 					continue;
 				}
 			}else{
@@ -209,12 +234,13 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 				sig=mat.group(1);
 			}
 
-			if (sig == null && decipherFunctUrl != null){
+			if (sig == null && curJsFileName != null){
 				mat=patEncSig.matcher(stream);
 				if (mat.find()){
-					Log.d(getClass().getSimpleName(), "Decypher signature: " + mat.group(1));
+					if(LOGGING)
+						Log.d(getClass().getSimpleName(), "Decypher signature: " + mat.group(1));
 					decipheredSignature=null;
-					if (decipherSignature(mat.group(1), decipherFunctUrl, client)){
+					if (decipherSignature(mat.group(1), client)){
 						lock.lock();
 						try{
 							jsExecuting.await(3, TimeUnit.SECONDS);
@@ -252,11 +278,10 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		return ytFiles;
 	}
 
-	private boolean decipherSignature(final String sig, String decipherFunctFile, HttpClient client)
-			throws IOException {
+	private boolean decipherSignature(final String sig, HttpClient client) throws IOException {
 		// Assume the functions don't change that much
 		if (decipherFunctionName == null || decipherFunctions == null){
-			String decipherFunctUrl="http://s.ytimg.com/yts/jsbin/" + decipherFunctFile;
+			String decipherFunctUrl="http://s.ytimg.com/yts/jsbin/" + decipherJsFileName;
 
 			HttpGet request=new HttpGet(decipherFunctUrl);
 			HttpResponse response=client.execute(request);
@@ -271,11 +296,13 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 			javascriptFile=sb.toString();
 			reader.close();
 			in.close();
-			Log.d(getClass().getSimpleName(), "Decipher FunctURL: " + decipherFunctUrl);
+			if(LOGGING)
+				Log.d(getClass().getSimpleName(), "Decipher FunctURL: " + decipherFunctUrl);
 			Matcher mat=patSignatureDecFunction.matcher(javascriptFile);
 			if (mat.find()){
 				decipherFunctionName=mat.group(2);
-				Log.d(getClass().getSimpleName(), "Decipher Functname: " + decipherFunctionName);
+				if(LOGGING)
+					Log.d(getClass().getSimpleName(), "Decipher Functname: " + decipherFunctionName);
 				// Get the main function.
 				String mainDecipherFunct="function " + decipherFunctionName + "(";
 				int startIndex=javascriptFile.indexOf(mainDecipherFunct) + mainDecipherFunct.length();
@@ -333,8 +360,12 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 							braces--;
 					}
 				}
-				Log.d(getClass().getSimpleName(), "Decipher Function: " + decipherFunctions);
+				if(LOGGING)
+					Log.d(getClass().getSimpleName(), "Decipher Function: " + decipherFunctions);
 				decipherViaWebView(sig);
+				if (CACHING){
+					writeDeciperFunctToChache();
+				}
 			}
 		}else{
 			decipherViaWebView(sig);
@@ -342,30 +373,87 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		return true;
 	}
 
+	private void readDecipherFunctFromCache() {
+		if (context != null){
+			File cacheFile=new File(context.getCacheDir().getAbsolutePath() + "/" + CACHE_FILE_NAME);
+			// The cached functions are valid for 2 weeks
+			if (cacheFile.exists() && (System.currentTimeMillis() - cacheFile.lastModified()) < 1209600000){
+				BufferedReader reader=null;
+				try{
+					reader=new BufferedReader(new InputStreamReader(new FileInputStream(cacheFile), "UTF-8"));
+					decipherJsFileName=reader.readLine();
+					decipherFunctionName=reader.readLine();
+					decipherFunctions=reader.readLine();
+				}catch (Exception e){
+					e.printStackTrace();
+				}finally{
+					if (reader != null){
+						try{
+							reader.close();
+						}catch (IOException e){
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	
+	/**
+	 * Include the webm format urls into the result. Default: true
+	 */
+	public void setIncludeWebM(boolean includeWebM){
+		this.includeWebM=includeWebM;
+	}
+
+	private void writeDeciperFunctToChache() {
+		if (context != null ){
+			File cacheFile=new File(context.getCacheDir().getAbsolutePath() + "/" + CACHE_FILE_NAME);
+			BufferedWriter writer=null;
+			try{
+				writer=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(cacheFile), "UTF-8"));
+				writer.write(decipherJsFileName + "\n");
+				writer.write(decipherFunctionName + "\n");
+				writer.write(decipherFunctions);
+			}catch (Exception e){
+				e.printStackTrace();
+			}finally{
+				if (writer != null){
+					try{
+						writer.close();
+					}catch (IOException e){
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
 	private void decipherViaWebView(final String sig) {
-		if (calledActivity == null || calledActivity.isFinishing()){
+		if (context == null){
 			return;
 		}
-		calledActivity.runOnUiThread(new Runnable() {
+		new Handler(Looper.getMainLooper()).post(new Runnable() {
 
 			@Override
 			public void run() {
-				if(js==null){
-					js=new JsEvaluator(calledActivity);
+				if (js == null){
+					js=new JsEvaluator(context);
 				}
 				js.evaluate(decipherFunctions + " " + decipherFunctionName + "('" + sig + "');",
-					new JsCallback() {
-						@Override
-						public void onResult(final String result) {
-							lock.lock();
-							try{
-								decipheredSignature=result;
-								jsExecuting.signal();
-							}finally{
-								lock.unlock();
+						new JsCallback() {
+							@Override
+							public void onResult(final String result) {
+								lock.lock();
+								try{
+									decipheredSignature=result;
+									jsExecuting.signal();
+								}finally{
+									lock.unlock();
+								}
 							}
-						}
-					});
+						});
 			}
 		});
 	}
