@@ -43,12 +43,11 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 
 	private static final Pattern patItag=Pattern.compile("itag=([0-9]+?)[&]");
 	private static final Pattern patSig=Pattern.compile("signature=(.+?)[&|,|\\\\]");
-	private static final Pattern patEncSig=Pattern.compile("s=([0-9A-F|\\.]{10,}?)[&|,]");
+	private static final Pattern patEncSig=Pattern.compile("s=([0-9A-F|\\.]{10,}?)[&|,|\"]");
 	private static final Pattern patUrl=Pattern.compile("url=(.*?)[&|,|\\\\]");
 
-	private static final Pattern patVariableFunction=Pattern
-			.compile("(\\{|;| |=)(([a-zA-Z]{1}[a-zA-Z0-9]{0,2}))\\.([a-zA-Z]{1}[a-zA-Z0-9]{0,2})\\(");
-	private static final Pattern patFunction=Pattern.compile("(\\{|;| |=)(([a-zA-Z]{1}[a-zA-Z0-9]{0,2}))\\(");
+	private static final Pattern patVariableFunction = Pattern.compile("(\\{|;| |=)(([a-zA-Z$]{1}[a-zA-Z0-9$]{0,2}))\\.([a-zA-Z$]{1}[a-zA-Z0-9$]{0,2})\\(");
+	private static final Pattern patFunction = Pattern.compile("(\\{|;| |=)(([a-zA-Z$_]{1}[a-zA-Z0-9$]{0,2}))\\(");
 	private static final Pattern patDecryptionJsFile=Pattern.compile("html5player-(.+?).js");
 	private static final Pattern patSignatureDecFunction=Pattern.compile("\\(\"signature\",((.+?))\\(");
 
