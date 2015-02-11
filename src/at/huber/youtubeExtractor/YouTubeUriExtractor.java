@@ -76,7 +76,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 
 		// Dash Video
 		META_MAP.put(160, new Meta(160, "mp4", "dash 176x144", 144));
-		META_MAP.put(133, new Meta(140, "mp4", "dash 426x240", 240));
+		META_MAP.put(133, new Meta(133, "mp4", "dash 426x240", 240));
 		META_MAP.put(134, new Meta(134, "mp4", "dash 640x360", 360));
 		META_MAP.put(135, new Meta(135, "mp4", "dash 854x480", 480));
 		META_MAP.put(136, new Meta(136, "mp4", "dash 1280x720", 720));
@@ -86,11 +86,11 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		META_MAP.put(140, new Meta(140, "m4a", "dash audio aac", -1));
 
 		// WEBM Dash Video
-		META_MAP.put(242, new Meta(134, "webm", "dash 426x240", 240));
-		META_MAP.put(243, new Meta(135, "webm", "dash 640x360", 360));
-		META_MAP.put(244, new Meta(136, "webm", "dash 854x480", 480));
-		META_MAP.put(247, new Meta(137, "webm", "dash 1280x720", 720));
-		META_MAP.put(248, new Meta(140, "webm", "dash 1920x1080", 1080));
+		META_MAP.put(242, new Meta(242, "webm", "dash 426x240", 240));
+		META_MAP.put(243, new Meta(243, "webm", "dash 640x360", 360));
+		META_MAP.put(244, new Meta(244, "webm", "dash 854x480", 480));
+		META_MAP.put(247, new Meta(247, "webm", "dash 1280x720", 720));
+		META_MAP.put(248, new Meta(248, "webm", "dash 1920x1080", 1080));
 
 		// WEBM Dash Audio
 		META_MAP.put(171, new Meta(171, "webm", "dash audio aac", -1));
