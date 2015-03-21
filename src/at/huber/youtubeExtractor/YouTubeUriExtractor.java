@@ -114,7 +114,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 			return null;
 		}
 
-		if (ytUrl.contains("http://youtu.be/")){
+		if (ytUrl.contains("://youtu.be/")){
 			youtubeID=ytUrl.substring(ytUrl.lastIndexOf("/") + 1);
 			ytUrl="http://youtube.com/watch?v=" + youtubeID;
 		}else if (ytUrl.contains("watch?v=")){

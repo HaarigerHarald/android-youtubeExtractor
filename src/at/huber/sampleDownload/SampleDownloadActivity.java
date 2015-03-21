@@ -46,7 +46,7 @@ public class SampleDownloadActivity extends Activity {
 			String ytLink=getIntent().getStringExtra(Intent.EXTRA_TEXT);
 
 			if (ytLink != null
-					&& (ytLink.contains("http://youtu.be/") || ytLink.contains("youtube.com/watch?v="))){
+					&& (ytLink.contains("://youtu.be/") || ytLink.contains("youtube.com/watch?v="))){
 				youtubeLink=ytLink;
 				// We have a valid link such as: http://youtu.be/xxxx or
 				// http://youtube.com/watch?v=xxxx
