@@ -51,8 +51,8 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 	private static String decipherFunctions;
 	private static String decipherFunctionName;
 
-	private final static Lock lock=new ReentrantLock();
-	private final static Condition jsExecuting=lock.newCondition();
+	private final Lock lock=new ReentrantLock();
+	private final Condition jsExecuting=lock.newCondition();
 
 	private static final Pattern patItag=Pattern.compile("itag=([0-9]+?)[&]");
 	private static final Pattern patSig=Pattern.compile("signature=(.+?)[&|,|\\\\]");
