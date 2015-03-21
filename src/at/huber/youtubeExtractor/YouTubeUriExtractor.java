@@ -193,10 +193,10 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 			streams=streamMap.split(",");
 
 		}else{
-			patTitle=Pattern.compile("title=(.*?)[&|$]");
+			patTitle= Pattern.compile("title=((.*?))(&|\\z)");
 			mat=patTitle.matcher(streamMap);
 			if (mat.find()){
-				videoTitle=URLDecoder.decode(mat.group(1), "UTF-8");
+				videoTitle=URLDecoder.decode(mat.group(2), "UTF-8");
 			}
 
 			streamMap=URLDecoder.decode(streamMap, "UTF-8");
