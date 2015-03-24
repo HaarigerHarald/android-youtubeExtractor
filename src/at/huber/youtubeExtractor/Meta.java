@@ -6,12 +6,29 @@ public class Meta {
 	String ext;
 	String info;
 	int height;
+	int fps;
 
 	Meta(int itag, String ext, String info, int height) {
 		this.itag=itag;
 		this.info=info;
 		this.ext=ext;
 		this.height=height;
+		this.fps=30;
+	}
+	
+	Meta(int itag, String ext, String info, int height, int fps) {
+		this.itag=itag;
+		this.info=info;
+		this.ext=ext;
+		this.height=height;
+		this.fps=fps;
+	}
+	
+	/**
+	 *  Get the frames per second
+	 */
+	public int getFps(){
+		return fps;
 	}
 
 	/**
