@@ -44,6 +44,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 	private String youtubeID;
 	private JsEvaluator js;
 	private boolean includeWebM=true;
+	private boolean useHttp=false;
 
 	private volatile String decipheredSignature;
 
@@ -159,7 +160,8 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 
 	private SparseArray<YtFile> getStreamUrls() throws IOException, InterruptedException {
 
-		String ytInfoUrl="http://www.youtube.com/get_video_info?video_id=" + youtubeID + "&eurl="
+		String ytInfoUrl= (useHttp) ? "http://" : "https://";
+		ytInfoUrl+="www.youtube.com/get_video_info?video_id=" + youtubeID + "&eurl="
 				+ URLEncoder.encode("https://youtube.googleapis.com/v/" + youtubeID, "UTF-8");
 
 		HttpClient client=new DefaultHttpClient();
@@ -430,6 +432,18 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 	 */
 	public void setIncludeWebM(boolean includeWebM){
 		this.includeWebM=includeWebM;
+	}
+	
+	
+	/**
+	 * Set default protocol of the returned urls to HTTP instead of HTTPS. 
+	 * HTTP may be blocked in some regions so HTTPS is the default value.
+	 * 
+	 * Note: Enciphered videos require HTTPS so they are not affected by
+	 * this.
+	 */
+	public void setDefaultHttpProtocol(boolean useHttp){
+		this.useHttp=useHttp;
 	}
 
 	private void writeDeciperFunctToChache() {
