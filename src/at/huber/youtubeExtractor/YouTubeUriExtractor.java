@@ -1,5 +1,6 @@
 package at.huber.youtubeExtractor;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.concurrent.TimeUnit;
@@ -17,11 +20,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -34,7 +32,7 @@ import com.evgenii.jsevaluator.JsEvaluator;
 import com.evgenii.jsevaluator.interfaces.JsCallback;
 
 public abstract class YouTubeUriExtractor extends AsyncTask<String, String, SparseArray<YtFile>> {
-
+	
 	private final static boolean CACHING=true;
 	private final static boolean LOGGING=false;
 	private final static String CACHE_FILE_NAME="decipher_js_funct";
@@ -55,13 +53,15 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 	private final Lock lock=new ReentrantLock();
 	private final Condition jsExecuting=lock.newCondition();
 	
+	private static final String USER_AGENT="Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36";
+	
 	private static final Pattern patYouTubePageLink=Pattern.compile("(http|https)://(www\\.|)youtube\\.com/watch\\?v=(.+?)( |\\z|&)");
 	private static final Pattern patYouTubeShortLink=Pattern.compile("(http|https)://(www\\.|)youtu.be/(.+?)( |\\z|&)");
 
-	private static final Pattern patItag=Pattern.compile("itag=([0-9]+?)[&]");
-	private static final Pattern patSig=Pattern.compile("signature=(.+?)[&|,|\\\\]");
-	private static final Pattern patEncSig=Pattern.compile("s=([0-9A-F|\\.]{10,}?)[&|,|\"]");
-	private static final Pattern patUrl=Pattern.compile("url=(.*?)[&|,|\\\\]");
+	private static final Pattern patItag=Pattern.compile("itag=([0-9]+?)(&|,)");
+	private static final Pattern patSig=Pattern.compile("signature=(.+?)(&|,|\\\\)");
+	private static final Pattern patEncSig=Pattern.compile("s=([0-9A-F|\\.]{10,}?)(&|,|\")");
+	private static final Pattern patUrl=Pattern.compile("url=(.+?)(&|,)");
 
 	private static final Pattern patVariableFunction = Pattern.compile("(\\{|;| |=)(([a-zA-Z$]{1}[a-zA-Z0-9$]{0,2}))\\.([a-zA-Z$]{1}[a-zA-Z0-9$]{0,2})\\(");
 	private static final Pattern patFunction = Pattern.compile("(\\{|;| |=)(([a-zA-Z$_]{1}[a-zA-Z0-9$]{0,2}))\\(");
@@ -164,14 +164,24 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		ytInfoUrl+="www.youtube.com/get_video_info?video_id=" + youtubeID + "&eurl="
 				+ URLEncoder.encode("https://youtube.googleapis.com/v/" + youtubeID, "UTF-8");
 
-		HttpClient client=new DefaultHttpClient();
-		HttpGet request=new HttpGet(ytInfoUrl);
-		HttpResponse response=client.execute(request);
-		InputStream in=response.getEntity().getContent();
-		BufferedReader reader=new BufferedReader(new InputStreamReader(in));
-		String streamMap=reader.readLine();
-		in.close();
-		reader.close();
+		String streamMap=null;
+		BufferedReader reader=null;
+		InputStream in=null;
+		URL getUrl = new URL(ytInfoUrl);
+		HttpURLConnection urlConnection = (HttpURLConnection) getUrl.openConnection();
+		urlConnection.setRequestProperty("User-Agent", USER_AGENT);
+		try{
+			in=new BufferedInputStream(urlConnection.getInputStream());
+			reader=new BufferedReader(new InputStreamReader(in));
+			streamMap=reader.readLine();
+
+		}finally{
+			if (in != null && reader != null){
+				in.close();
+				reader.close();
+			}
+			urlConnection.disconnect();
+		}
 		Pattern patTitle;
 		Matcher mat;
 		String curJsFileName=null;
@@ -185,20 +195,27 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 					&& (decipherJsFileName == null || decipherFunctions == null || decipherFunctionName == null)){
 				readDecipherFunctFromCache();
 			}
-
-			request=new HttpGet("https://youtube.com/watch?v=" + youtubeID);
-			response=client.execute(request);
-			in=response.getEntity().getContent();
-			reader=new BufferedReader(new InputStreamReader(in));
-			String line=null;
-			while ((line=reader.readLine()) != null){
-				if (line.contains("stream_map")){
-					streamMap=line.replace("\\u0026", "&");
-					break;
+			getUrl = new URL("https://youtube.com/watch?v=" + youtubeID);
+			urlConnection = (HttpURLConnection) getUrl.openConnection();
+			urlConnection.setRequestProperty("User-Agent", USER_AGENT);
+			try{
+				in=new BufferedInputStream(urlConnection.getInputStream());
+				reader=new BufferedReader(new InputStreamReader(in));
+				String line=null;
+				while ((line=reader.readLine()) != null){
+					// Log.d("line", line);
+					if (line.contains("url_encoded_fmt_stream_map")){
+						streamMap=line.replace("\\u0026", "&");
+						break;
+					}
 				}
+			}finally{
+				if (in != null && reader != null){
+					in.close();
+					reader.close();
+				}
+				urlConnection.disconnect();
 			}
-			in.close();
-			reader.close();
 
 			patTitle= Pattern.compile("\"title\":( |)\"((.*?))(?<!\\\\)\"");
 			mat= patTitle.matcher(streamMap);
@@ -215,7 +232,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 				}
 				decipherJsFileName=curJsFileName;
 			}
-			streams=streamMap.split(",");
+			streams=streamMap.split(",|url_encoded_fmt_stream_map|&adaptive_fmts=");
 
 		}else{
 			patTitle= Pattern.compile("title=((.*?))(&|\\z)");
@@ -223,11 +240,9 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 			if (mat.find()){
 				videoTitle=URLDecoder.decode(mat.group(2), "UTF-8");
 			}
-
 			streamMap=URLDecoder.decode(streamMap, "UTF-8");
-			streams=streamMap.split(",|%3B");
+			streams=streamMap.split(",|url_encoded_fmt_stream_map|&adaptive_fmts=");
 		}
-
 		SparseArray<YtFile> ytFiles=new SparseArray<YtFile>();
 		for(String encStream : streams){
 			encStream=encStream + ",";
@@ -254,7 +269,6 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 			}else{
 				continue;
 			}
-
 			mat=patSig.matcher(stream);
 			String sig=null;
 			if (mat.find()){
@@ -267,7 +281,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 					if(LOGGING)
 						Log.d(getClass().getSimpleName(), "Decypher signature: " + mat.group(1));
 					decipheredSignature=null;
-					if (decipherSignature(mat.group(1), client)){
+					if (decipherSignature(mat.group(1))){
 						lock.lock();
 						try{
 							jsExecuting.await(3, TimeUnit.SECONDS);
@@ -299,30 +313,41 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 			}
 		}
 		if (ytFiles.size() == 0){
-			Log.d(getClass().getSimpleName(), streamMap);
+			if(LOGGING)
+				Log.d(getClass().getSimpleName(), streamMap);
 			return null;
 		}
 		return ytFiles;
 	}
 
-	private boolean decipherSignature(final String sig, HttpClient client) throws IOException {
+	private boolean decipherSignature(final String sig) throws IOException {
 		// Assume the functions don't change that much
 		if (decipherFunctionName == null || decipherFunctions == null){
 			String decipherFunctUrl="http://s.ytimg.com/yts/jsbin/" + decipherJsFileName;
 
-			HttpGet request=new HttpGet(decipherFunctUrl);
-			HttpResponse response=client.execute(request);
-			InputStream in=response.getEntity().getContent();
-			BufferedReader reader=new BufferedReader(new InputStreamReader(in));
-			String javascriptFile;
-			StringBuilder sb=new StringBuilder("");
-			String line;
-			while ((line=reader.readLine()) != null){
-				sb.append(line);
+			InputStream in=null;
+			BufferedReader reader=null;
+			String javascriptFile=null;
+			URL url=new URL(decipherFunctUrl);
+			HttpURLConnection urlConnection=(HttpURLConnection) url.openConnection();
+			urlConnection.setRequestProperty("User-Agent", USER_AGENT);
+			try{
+				in=new BufferedInputStream(urlConnection.getInputStream());
+				reader=new BufferedReader(new InputStreamReader(in));
+				StringBuilder sb=new StringBuilder("");
+				String line;
+				while ((line=reader.readLine()) != null){
+					sb.append(line);
+				}
+				javascriptFile=sb.toString();
+			}finally{
+				if (in != null && reader != null){
+					in.close();
+					reader.close();
+				}
+				urlConnection.disconnect();
 			}
-			javascriptFile=sb.toString();
-			reader.close();
-			in.close();
+
 			if(LOGGING)
 				Log.d(getClass().getSimpleName(), "Decipher FunctURL: " + decipherFunctUrl);
 			Matcher mat=patSignatureDecFunction.matcher(javascriptFile);
@@ -428,7 +453,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 	
 	
 	/**
-	 * Include the webm format urls into the result. Default: true
+	 * Include the webm format files into the result. Default: true
 	 */
 	public void setIncludeWebM(boolean includeWebM){
 		this.includeWebM=includeWebM;
