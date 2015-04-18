@@ -41,7 +41,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 
 	private Context context;
 	private String videoTitle="youtube";
-	private String youtubeID="";
+	private String youtubeID;
 	private JsEvaluator js;
 	private boolean includeWebM=true;
 
@@ -53,6 +53,9 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 
 	private final Lock lock=new ReentrantLock();
 	private final Condition jsExecuting=lock.newCondition();
+	
+	private static final Pattern patYouTubePageLink=Pattern.compile("(http|https)://(www\\.|)youtube\\.com/watch\\?v=(.+?)( |\\z|&)");
+	private static final Pattern patYouTubeShortLink=Pattern.compile("(http|https)://(www\\.|)youtu.be/(.+?)( |\\z|&)");
 
 	private static final Pattern patItag=Pattern.compile("itag=([0-9]+?)[&]");
 	private static final Pattern patSig=Pattern.compile("signature=(.+?)[&|,|\\\\]");
@@ -131,28 +134,30 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		if (ytUrl == null){
 			return null;
 		}
-
-		if (ytUrl.contains("://youtu.be/")){
-			youtubeID=ytUrl.substring(ytUrl.lastIndexOf("/") + 1);
-			ytUrl="http://youtube.com/watch?v=" + youtubeID;
-		}else if (ytUrl.contains("watch?v=")){
-			if (ytUrl.contains("&")){
-				ytUrl=ytUrl.substring(0, ytUrl.indexOf('&'));
+		Matcher mat=patYouTubePageLink.matcher(ytUrl);
+		if (mat.find()){
+			youtubeID=mat.group(3);
+		}else{
+			mat=patYouTubeShortLink.matcher(ytUrl);
+			if(mat.find()){
+				youtubeID=mat.group(3);
+			}else if(ytUrl.matches("\\p{Graph}+?")){
+				youtubeID=ytUrl;
 			}
-			if (ytUrl.contains("https")){
-				ytUrl.replace("https", "http");
-			}
-			youtubeID=ytUrl.substring(ytUrl.indexOf("watch?v=") + 8);
 		}
-		try{
-			return getStreamUrls(ytUrl);
-		}catch (Exception e){
-			e.printStackTrace();
+		if(youtubeID!=null){
+			try{
+				return getStreamUrls();
+			}catch (Exception e){
+				e.printStackTrace();
+			}
+		}else{
+			Log.e(getClass().getSimpleName(), "Wrong YouTube link format");
 		}
 		return null;
 	}
 
-	private SparseArray<YtFile> getStreamUrls(String ytUrl) throws IOException, InterruptedException {
+	private SparseArray<YtFile> getStreamUrls() throws IOException, InterruptedException {
 
 		String ytInfoUrl="http://www.youtube.com/get_video_info?video_id=" + youtubeID + "&eurl="
 				+ URLEncoder.encode("https://youtube.googleapis.com/v/" + youtubeID, "UTF-8");
@@ -179,7 +184,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 				readDecipherFunctFromCache();
 			}
 
-			request=new HttpGet(ytUrl);
+			request=new HttpGet("https://youtube.com/watch?v=" + youtubeID);
 			response=client.execute(request);
 			in=response.getEntity().getContent();
 			reader=new BufferedReader(new InputStreamReader(in));
