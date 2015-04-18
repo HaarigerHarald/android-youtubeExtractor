@@ -2,8 +2,8 @@ package at.huber.youtubeExtractor;
 
 public class YtFile {
 
-	Meta meta;
-	String url="";
+	private Meta meta;
+	private String url="";
 
 	YtFile(Meta meta, String url) {
 		this.meta=meta;
