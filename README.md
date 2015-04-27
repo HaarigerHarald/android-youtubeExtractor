@@ -51,7 +51,13 @@ There is a great Java library for doing this with mp4 files: [mp4parser](https:/
 
 To try the app have a look at: [youtubeDownloader.apk](https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/bin/youtubeDownloader.apk)
 
-<img src='https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/Screenshot_2015-04-26-17-04-382.png' width='250' alt='youtubeDownloader Screenshot 1'>
+<img height="0" width="15%">
+<img src='https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/Screenshot_2015-04-26-17-04-382.png' width='30%' alt='youtubeDownloader Screenshot 1'>
+<img height="0" width="10%">
+<img src='https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/Screenshot_2015-04-27-17-05-50.png' width='30%' alt='youtubeDownloader Screenshot 2'>
+<img height="0" width="15%">
 
-<img src='https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/Screenshot_2015-04-27-17-05-50.png' width='250' alt='youtubeDownloader Screenshot 2'>
+## License
+
+Modified BSD license see LICENSE
 
