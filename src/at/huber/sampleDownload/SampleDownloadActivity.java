@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -14,7 +13,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 import at.huber.youtubeExtractor.YouTubeUriExtractor;
 import at.huber.youtubeExtractor.YtFile;
@@ -31,7 +29,6 @@ public class SampleDownloadActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_sample_download);
-		colorTitle(Color.parseColor("#E62117"));
 		mainLayout=(LinearLayout) findViewById(R.id.main_layout);
 		mainProgressBar=(ProgressBar) findViewById(R.id.prgrBar);
 
@@ -104,7 +101,7 @@ public class SampleDownloadActivity extends Activity {
 				}else{
 					filename=videoTitle + "." + ytfile.getMeta().getExt();
 				}
-				filename=filename.replaceAll("\\\\|>|<|\"|\\||\\*|\\?|%|:|#", "");
+				filename=filename.replaceAll("\\\\|>|<|\"|\\||\\*|\\?|%|:|#|/", "");
 				downloadFromUrl(ytfile.getUrl(), videoTitle, filename);
 				finish();
 			}
@@ -124,19 +121,6 @@ public class SampleDownloadActivity extends Activity {
 		// get download service and enqueue file
 		DownloadManager manager=(DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
 		manager.enqueue(request);
-	}
-
-	private void colorTitle(int color) {
-		try{
-			int dividerId=getResources().getIdentifier("android:id/titleDivider", null, null);
-			View divider=findViewById(dividerId);
-			divider.setBackgroundColor(color);
-			int textViewId=getResources().getIdentifier("android:id/title", null, null);
-			TextView tv=(TextView) findViewById(textViewId);
-			tv.setTextColor(color);
-		}catch (NullPointerException npe){
-			// Ignore something has changed
-		}
 	}
 
 }

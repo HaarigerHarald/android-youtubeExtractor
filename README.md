@@ -33,7 +33,7 @@ calling ytFiles.get(itag). One ytFile contains the url and its appropriate meta 
 For further infos have a look at the supplied sample YoutubeDownloader app. It uses the "Share" function in the official YouTube
 app to download YouTube videos. It doesn't have a launcher entry though so don't be irritated.
 
-To try the app have a look at: [youtubeDownloader.apk](https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/bin/youtubeDownloader.apk)
+To try the app have a look at: [youtubeDownloader.apk](https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/bin/youtubeSampleDL.apk)
 
 <img src='https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/Screenshot_2015-02-11-19-29-13.png' width='250' alt='youtubeDownloader Screenshot 1'>
 
