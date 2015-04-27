@@ -6,9 +6,9 @@ It features an age verification circumvention and a signature deciphering method
 
 ## Get it
 
-1. Just import the jar library [youtubeExtractor.jar](https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/bin/youtubeExtractor.jar)
+* Just import the jar library [youtubeExtractor.jar](https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/bin/youtubeExtractor.jar)
 
-1. Or build it yourself from the sources, don't forget you will also need this great library if you do so: [js-evaluator-for-android](https://github.com/evgenyneu/js-evaluator-for-android)
+* Or build it yourself from the sources, don't forget you will also need this great library if you do so: [js-evaluator-for-android](https://github.com/evgenyneu/js-evaluator-for-android)
 
 ## How to Use:
 
@@ -49,9 +49,8 @@ There is a great Java library for doing this with mp4 files: [mp4parser](https:/
 
 1. Some media players aren't able to read the dash container of the m4a Audio files. This is also fixable via the library mentioned above.
 
-To try the app have a look at: [youtubeDownloader.apk](https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/bin/youtubeDownloader.apk)
+To download, "Share" a video from the YouTube App or from your browser: [youtubeDownloader.apk](https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/bin/youtubeDownloader.apk)
 
-<img height="0" width="15%">
 <img src='https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/Screenshot_2015-04-26-17-04-382.png' width='30%' alt='youtubeDownloader Screenshot 1'>
 <img height="0" width="10%">
 <img src='https://github.com/HaarigerHarald/android-youtubeExtractor/raw/master/Screenshot_2015-04-27-17-05-50.png' width='30%' alt='youtubeDownloader Screenshot 2'>
