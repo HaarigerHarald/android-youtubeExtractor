@@ -221,7 +221,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 			mat= patTitle.matcher(streamMap);
 			if(mat.find()){
 				videoTitle=mat.group(2);
-				videoTitle=videoTitle.replace("\\\"", "\"");
+				videoTitle=videoTitle.replace("\\\"", "\"").replace("\\/", "/");
 			}
 			mat=patDecryptionJsFile.matcher(streamMap);
 			if (mat.find()){
