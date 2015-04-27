@@ -55,7 +55,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 	
 	private static final String USER_AGENT="Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36";
 	
-	private static final Pattern patYouTubePageLink=Pattern.compile("(http|https)://(www\\.|)youtube\\.com/watch\\?v=(.+?)( |\\z|&)");
+	private static final Pattern patYouTubePageLink=Pattern.compile("(http|https)://(www\\.|m.|)youtube\\.com/watch\\?v=(.+?)( |\\z|&)");
 	private static final Pattern patYouTubeShortLink=Pattern.compile("(http|https)://(www\\.|)youtu.be/(.+?)( |\\z|&)");
 
 	private static final Pattern patItag=Pattern.compile("itag=([0-9]+?)(&|,)");
@@ -131,6 +131,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 
 	@Override
 	protected SparseArray<YtFile> doInBackground(String... params) {
+		youtubeID=null;
 		String ytUrl=params[0];
 		if (ytUrl == null){
 			return null;
@@ -231,9 +232,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 					decipherFunctionName=null;
 				}
 				decipherJsFileName=curJsFileName;
-			}
-			streams=streamMap.split(",|url_encoded_fmt_stream_map|&adaptive_fmts=");
-
+			}	
 		}else{
 			patTitle= Pattern.compile("title=((.*?))(&|\\z)");
 			mat=patTitle.matcher(streamMap);
@@ -241,8 +240,9 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 				videoTitle=URLDecoder.decode(mat.group(2), "UTF-8");
 			}
 			streamMap=URLDecoder.decode(streamMap, "UTF-8");
-			streams=streamMap.split(",|url_encoded_fmt_stream_map|&adaptive_fmts=");
 		}
+		
+		streams=streamMap.split(",|url_encoded_fmt_stream_map|&adaptive_fmts=");
 		SparseArray<YtFile> ytFiles=new SparseArray<YtFile>();
 		for(String encStream : streams){
 			encStream=encStream + ",";
@@ -289,10 +289,9 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 							lock.unlock();
 						}
 					}
-					if (decipheredSignature == null){
+					sig=decipheredSignature;
+					if (sig == null){
 						return null;
-					}else{
-						sig=decipheredSignature;
 					}
 				}
 			}
@@ -418,6 +417,8 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 				if (CACHING){
 					writeDeciperFunctToChache();
 				}
+			}else{
+				return false;
 			}
 		}else{
 			decipherViaWebView(sig);
