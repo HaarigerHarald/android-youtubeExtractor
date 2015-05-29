@@ -88,7 +88,8 @@ public class SampleDownloadActivity extends Activity {
 
 	private void addButtonToMainLayout(final String videoTitle, final YtFile ytfile) {
 		// Display some buttons and let the user choose the format
-		String btnText=(ytfile.getMeta().getHeight() == -1) ? "Audio m4a" : ytfile.getMeta().getInfo();
+		String btnText=(ytfile.getMeta().getHeight() == -1) ? "Audio m4a" : ytfile.getMeta().getHeight()+"p";
+		btnText+= (ytfile.getMeta().isDashContainer()) ? " dash" : "";
 		Button btn=new Button(this);
 		btn.setText(btnText);
 		btn.setOnClickListener(new OnClickListener() {

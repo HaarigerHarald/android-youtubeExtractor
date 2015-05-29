@@ -1,26 +1,33 @@
 package at.huber.youtubeExtractor;
 
 public class Meta {
+	
+	public enum VCodec{
+		 H263, H264, MPEG4, VP8, VP9, NONE
+	}
+	
+	public enum ACodec{
+		MP3, AAC, VORBIS, NONE
+	}
 
 	private int itag;
 	private String ext;
-	private String info;
 	private int height;
 	private int fps;
+	private VCodec vCodec;
+	private ACodec aCodec;
 	private boolean isDashContainer;
 
-	Meta(int itag, String ext, String info, int height, boolean isDashContainer) {
+	Meta(int itag, String ext, int height, VCodec vCodec, ACodec aCodec, boolean isDashContainer) {
 		this.itag=itag;
-		this.info=info;
 		this.ext=ext;
 		this.height=height;
 		this.fps=30;
 		this.isDashContainer=isDashContainer;
 	}
 
-	Meta(int itag, String ext, String info, int height, int fps, boolean isDashContainer) {
+	Meta(int itag, String ext,int height, VCodec vCodec, ACodec aCodec, int fps, boolean isDashContainer) {
 		this.itag=itag;
-		this.info=info;
 		this.ext=ext;
 		this.height=height;
 		this.fps=fps;
@@ -51,12 +58,13 @@ public class Meta {
 	public boolean isDashContainer() {
 		return isDashContainer;
 	}
-
-	/**
-	 * General info about the meta data like "dash 1280x720" or "dash audio aac"
-	 */
-	public String getInfo() {
-		return info;
+	
+	public ACodec getAudioCodec(){
+		return aCodec;
+	}
+	
+	public VCodec getVideoCodec(){
+		return vCodec;
 	}
 
 	/**
