@@ -95,16 +95,19 @@ public class DownloadActivity extends Activity {
 			}
 		};
 		ytEx.setIncludeWebM(false);
+		ytEx.setParseDashManifest(true);
 		ytEx.execute(youtubeLink);
 
 	}
 	
 	private void addFormatToList(YtFile ytFile, SparseArray<YtFile> ytFiles){
 		int height=ytFile.getMeta().getHeight();
-		for(YtFragmentedVideo frVideo: formatsToShowList){
-			if(frVideo.height==height && (frVideo.videoFile==null || 
-					frVideo.videoFile.getMeta().getFps()==ytFile.getMeta().getFps())){
-				return;
+		if(height!=-1){
+			for(YtFragmentedVideo frVideo: formatsToShowList){
+				if(frVideo.height==height && (frVideo.videoFile==null || 
+						frVideo.videoFile.getMeta().getFps()==ytFile.getMeta().getFps())){
+					return;
+				}
 			}
 		}
 		YtFragmentedVideo frVideo=new YtFragmentedVideo();
@@ -127,7 +130,7 @@ public class DownloadActivity extends Activity {
 		// Display some buttons and let the user choose the format
 		String btnText;
 		if(ytFrVideo.height==-1)
-			btnText="Audio";
+			btnText="Audio "+ytFrVideo.audioFile.getMeta().getAudioBitrate()+" kbit/s" ;
 		else
 			btnText= (ytFrVideo.videoFile.getMeta().getFps() == 60) ? ytFrVideo.height+"p60": ytFrVideo.height+"p";
 		Button btn=new Button(this);
