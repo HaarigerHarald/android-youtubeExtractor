@@ -68,17 +68,17 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 	private static final Pattern patDecryptionJsFile=Pattern.compile("html5player-(.+?).js");
 	private static final Pattern patSignatureDecFunction=Pattern.compile("\\(\"signature\",((.+?))\\(");
 
-	private static final SparseArray<Meta> META_MAP=new SparseArray<Meta>();
+		private static final SparseArray<Meta> META_MAP=new SparseArray<Meta>();
 	static{
 		// http://en.wikipedia.org/wiki/YouTube#Quality_and_formats
 		
 		// Video and Audio
-		META_MAP.put(17, new Meta(17, "3gp", 144, Meta.VCodec.MPEG4, Meta.ACodec.AAC, false));
-		META_MAP.put(36, new Meta(36, "3gp", 240, Meta.VCodec.MPEG4, Meta.ACodec.AAC, false));
-		META_MAP.put(5, new Meta(5, "flv", 240, Meta.VCodec.H263, Meta.ACodec.MP3 , false));
-		META_MAP.put(43, new Meta(43, "webm", 360, Meta.VCodec.VP8, Meta.ACodec.VORBIS, false));
-		META_MAP.put(18, new Meta(18, "mp4", 360, Meta.VCodec.H264, Meta.ACodec.AAC, false));
-		META_MAP.put(22, new Meta(22, "mp4", 720,  Meta.VCodec.H264, Meta.ACodec.AAC, false));
+		META_MAP.put(17, new Meta(17, "3gp", 144, Meta.VCodec.MPEG4, Meta.ACodec.AAC, 24, false));
+		META_MAP.put(36, new Meta(36, "3gp", 240, Meta.VCodec.MPEG4, Meta.ACodec.AAC, 32, false));
+		META_MAP.put(5, new Meta(5, "flv", 240, Meta.VCodec.H263, Meta.ACodec.MP3, 64, false));
+		META_MAP.put(43, new Meta(43, "webm", 360, Meta.VCodec.VP8, Meta.ACodec.VORBIS, 128, false));
+		META_MAP.put(18, new Meta(18, "mp4", 360, Meta.VCodec.H264, Meta.ACodec.AAC, 96, false));
+		META_MAP.put(22, new Meta(22, "mp4", 720,  Meta.VCodec.H264, Meta.ACodec.AAC, 192, false));
 
 		// Dash Video
 		META_MAP.put(160, new Meta(160, "mp4", 144, Meta.VCodec.H264, Meta.ACodec.NONE, true));
@@ -90,12 +90,12 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		META_MAP.put(264, new Meta(264, "mp4", 1440, Meta.VCodec.H264, Meta.ACodec.NONE, true));
 		META_MAP.put(266, new Meta(266, "mp4", 2160, Meta.VCodec.H264, Meta.ACodec.NONE, true));
 		
-		META_MAP.put(298, new Meta(298, "mp4", 720, Meta.VCodec.H264, Meta.ACodec.NONE, 60, true));
-		META_MAP.put(299, new Meta(299, "mp4", 1080, Meta.VCodec.H264, Meta.ACodec.NONE, 60,  true));
+		META_MAP.put(298, new Meta(298, "mp4", 720, Meta.VCodec.H264, 60, Meta.ACodec.NONE, true));
+		META_MAP.put(299, new Meta(299, "mp4", 1080, Meta.VCodec.H264, 60, Meta.ACodec.NONE,  true));
 
 		// Dash Audio
-		META_MAP.put(140, new Meta(140, "m4a", -1, Meta.VCodec.NONE, Meta.ACodec.AAC, true));
-		META_MAP.put(141, new Meta(141, "m4a", -1, Meta.VCodec.NONE, Meta.ACodec.AAC, true));
+		META_MAP.put(140, new Meta(140, "m4a", Meta.VCodec.NONE, Meta.ACodec.AAC, 128, true));
+		META_MAP.put(141, new Meta(141, "m4a", Meta.VCodec.NONE, Meta.ACodec.AAC, 256, true));
 
 		// WEBM Dash Video
 		META_MAP.put(278, new Meta(278, "webm", 144, Meta.VCodec.VP9, Meta.ACodec.NONE, true));
@@ -103,17 +103,17 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		META_MAP.put(243, new Meta(243, "webm", 360, Meta.VCodec.VP9, Meta.ACodec.NONE, true));
 		META_MAP.put(244, new Meta(244, "webm", 480, Meta.VCodec.VP9, Meta.ACodec.NONE, true));
 		META_MAP.put(247, new Meta(247, "webm", 720, Meta.VCodec.VP9, Meta.ACodec.NONE, true));
-		META_MAP.put(271, new Meta(271, "webm", 1440, Meta.VCodec.VP9, Meta.ACodec.NONE, true));
 		META_MAP.put(248, new Meta(248, "webm", 1080, Meta.VCodec.VP9, Meta.ACodec.NONE, true));
+		META_MAP.put(271, new Meta(271, "webm", 1440, Meta.VCodec.VP9, Meta.ACodec.NONE, true));
 		META_MAP.put(313, new Meta(313, "webm", 2160, Meta.VCodec.VP9, Meta.ACodec.NONE, true));
 		
-		META_MAP.put(302, new Meta(302, "webm", 720, Meta.VCodec.VP9, Meta.ACodec.NONE, 60, true));
-		META_MAP.put(308, new Meta(308, "webm", 1440, Meta.VCodec.VP9, Meta.ACodec.NONE, 60, true));
-		META_MAP.put(303, new Meta(303, "webm", 1080, Meta.VCodec.VP9, Meta.ACodec.NONE, 60, true));
-		META_MAP.put(315, new Meta(315, "webm", 2160, Meta.VCodec.VP9, Meta.ACodec.NONE, 60, true));
+		META_MAP.put(302, new Meta(302, "webm", 720, Meta.VCodec.VP9, 60, Meta.ACodec.NONE, true));
+		META_MAP.put(308, new Meta(308, "webm", 1440, Meta.VCodec.VP9, 60, Meta.ACodec.NONE, true));
+		META_MAP.put(303, new Meta(303, "webm", 1080, Meta.VCodec.VP9, 60, Meta.ACodec.NONE, true));
+		META_MAP.put(315, new Meta(315, "webm", 2160, Meta.VCodec.VP9, 60, Meta.ACodec.NONE, true));
 
 		// WEBM Dash Audio
-		META_MAP.put(171, new Meta(171, "webm", -1, Meta.VCodec.NONE, Meta.ACodec.VORBIS, true));	
+		META_MAP.put(171, new Meta(171, "webm", Meta.VCodec.NONE, Meta.ACodec.VORBIS, 128, true));	
 	}
 
 	public YouTubeUriExtractor(Context con) {
