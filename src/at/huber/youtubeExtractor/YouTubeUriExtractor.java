@@ -35,6 +35,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 	
 	private final static boolean CACHING=true;
 	private final static boolean LOGGING=false;
+	private final static String LOG_TAG="YouTubeUriExtractor";
 	private final static String CACHE_FILE_NAME="decipher_js_funct";
 
 	private Context context;
@@ -156,7 +157,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 				e.printStackTrace();
 			}
 		}else{
-			Log.e(getClass().getSimpleName(), "Wrong YouTube link format");
+			Log.e(LOG_TAG, "Wrong YouTube link format");
 		}
 		return null;
 	}
@@ -282,10 +283,10 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 			if (mat.find()){
 				itag=Integer.parseInt(mat.group(1));
 				if(LOGGING)
-					Log.d(getClass().getSimpleName(), "Itag found:" + itag);
+					Log.d(LOG_TAG, "Itag found:" + itag);
 				if (META_MAP.get(itag) == null){
 					if(LOGGING)
-						Log.d(getClass().getSimpleName(), "Itag not in list:" + itag);
+						Log.d(LOG_TAG, "Itag not in list:" + itag);
 					continue;
 				}else if(!includeWebM && META_MAP.get(itag).getExt().equals("webm")){
 					continue;
@@ -324,7 +325,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		
 		if(encSignatures!=null){
 			if(LOGGING)
-				Log.d(getClass().getSimpleName(), "Decipher signatures");
+				Log.d(LOG_TAG, "Decipher signatures");
 			String signature;
 			decipheredSignature=null;
 			if (decipherSignature(encSignatures)){
@@ -359,19 +360,19 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 				parseDashManifest(dashMpdUrl, ytFiles);
 			}catch(IOException io1){
 				if(LOGGING)
-					Log.d(getClass().getSimpleName(), "Failed to parse dash manifest 1");
+					Log.d(LOG_TAG, "Failed to parse dash manifest 1");
 				// It sometimes failes to connect for no apparent reason. We just retry.
 				try{
 					Thread.sleep(30);
 					parseDashManifest(dashMpdUrl, ytFiles);
 				}catch(IOException io2){
 					if(LOGGING)
-						Log.d(getClass().getSimpleName(), "Failed to parse dash manifest 2");
+						Log.d(LOG_TAG, "Failed to parse dash manifest 2");
 					try{
 						Thread.sleep(100);
 						parseDashManifest(dashMpdUrl, ytFiles);
 					}catch(IOException io3){
-						Log.e(getClass().getSimpleName(), "Failed to parse dash manifest 3");
+						Log.e(LOG_TAG, "Failed to parse dash manifest 3");
 					}
 				}
 			}
@@ -379,7 +380,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		
 		if (ytFiles.size() == 0){
 			if(LOGGING)
-				Log.d(getClass().getSimpleName(), streamMap);
+				Log.d(LOG_TAG, streamMap);
 			return null;
 		}
 		return ytFiles;
@@ -414,12 +415,12 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 			}
 
 			if(LOGGING)
-				Log.d(getClass().getSimpleName(), "Decipher FunctURL: " + decipherFunctUrl);
+				Log.d(LOG_TAG, "Decipher FunctURL: " + decipherFunctUrl);
 			Matcher mat=patSignatureDecFunction.matcher(javascriptFile);
 			if (mat.find()){
 				decipherFunctionName=mat.group(2);
 				if(LOGGING)
-					Log.d(getClass().getSimpleName(), "Decipher Functname: " + decipherFunctionName);
+					Log.d(LOG_TAG, "Decipher Functname: " + decipherFunctionName);
 				// Get the main function.
 				String mainDecipherFunct="function " + decipherFunctionName + "(";
 				int startIndex=javascriptFile.indexOf(mainDecipherFunct) + mainDecipherFunct.length();
@@ -478,7 +479,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 					}
 				}
 				if(LOGGING)
-					Log.d(getClass().getSimpleName(), "Decipher Function: " + decipherFunctions);
+					Log.d(LOG_TAG, "Decipher Function: " + decipherFunctions);
 				decipherViaWebView(encSignatures);
 				if (CACHING){
 					writeDeciperFunctToChache();
