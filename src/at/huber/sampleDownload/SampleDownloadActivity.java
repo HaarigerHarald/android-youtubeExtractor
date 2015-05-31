@@ -81,6 +81,7 @@ public class SampleDownloadActivity extends Activity {
 		};
 		// Ignore the google proprietary webm format
 		ytEx.setIncludeWebM(false);
+		ytEx.setParseDashManifest(true);
 		// Lets execute the request
 		ytEx.execute(youtubeLink);
 
@@ -88,7 +89,7 @@ public class SampleDownloadActivity extends Activity {
 
 	private void addButtonToMainLayout(final String videoTitle, final YtFile ytfile) {
 		// Display some buttons and let the user choose the format
-		String btnText=(ytfile.getMeta().getHeight() == -1) ? "Audio m4a" : ytfile.getMeta().getHeight()+"p";
+		String btnText=(ytfile.getMeta().getHeight() == -1) ? "Audio "+ytfile.getMeta().getAudioBitrate()+" kbit/s" : ytfile.getMeta().getHeight()+"p";
 		btnText+= (ytfile.getMeta().isDashContainer()) ? " dash" : "";
 		Button btn=new Button(this);
 		btn.setText(btnText);
