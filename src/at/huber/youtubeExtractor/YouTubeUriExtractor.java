@@ -40,7 +40,6 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 	private Context context;
 	private String videoTitle="youtube";
 	private String youtubeID;
-	private JsEvaluator js;
 	private boolean includeWebM=true;
 	private boolean useHttp=false;
 
@@ -185,6 +184,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		Matcher mat;
 		String curJsFileName=null;
 		String[] streams;
+		SparseArray<String> encSignatures=null;
 
 		// Some videos are using a ciphered signature we need to get the
 		// deciphering js-file from the youtubepage.
@@ -215,6 +215,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 				}
 				urlConnection.disconnect();
 			}
+			encSignatures=new SparseArray<String>();
 
 			patTitle= Pattern.compile("\"title\":( |)\"((.*?))(?<!\\\\)\"");
 			mat= patTitle.matcher(streamMap);
@@ -275,22 +276,8 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 
 			if (sig == null && curJsFileName != null){
 				mat=patEncSig.matcher(stream);
-				if (mat.find()){
-					if(LOGGING)
-						Log.d(getClass().getSimpleName(), "Decypher signature: " + mat.group(1));
-					decipheredSignature=null;
-					if (decipherSignature(mat.group(1))){
-						lock.lock();
-						try{
-							jsExecuting.await(3, TimeUnit.SECONDS);
-						}finally{
-							lock.unlock();
-						}
-					}
-					sig=decipheredSignature;
-					if (sig == null){
-						return null;
-					}
+				if (mat.find()){		
+					encSignatures.append(itag,mat.group(1));
 				}
 			}
 			mat=patUrl.matcher(encStream);
@@ -299,16 +286,45 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 				url=mat.group(1);
 			}
 
-			if (sig != null && url != null){
+			if (url != null){
 				Meta meta=META_MAP.get(itag);
 				String finalUrl=URLDecoder.decode(url, "UTF-8");
-				if (!finalUrl.contains("signature=")){
+				if (!finalUrl.contains("signature=")&& (encSignatures==null || encSignatures.get(itag)==null)){
 					finalUrl+="&signature=" + sig;
 				}
 				YtFile newVideo=new YtFile(meta, finalUrl);
 				ytFiles.put(itag, newVideo);
 			}
 		}
+		
+		if(encSignatures!=null){
+			if(LOGGING)
+				Log.d(getClass().getSimpleName(), "Decypher signatures");
+			String signature;
+			decipheredSignature=null;
+			if (decipherSignature(encSignatures)){
+				lock.lock();
+				try{
+					jsExecuting.await(3, TimeUnit.SECONDS);
+				}finally{
+					lock.unlock();
+				}
+			}
+			signature=decipheredSignature;
+			if (signature == null){
+				return null;
+			}else{
+				String[] sigs=signature.split("\n");
+				for(int i=0; i<encSignatures.size()&& i<sigs.length;i++){
+					int key= encSignatures.keyAt(i);
+					String url=ytFiles.get(key).getUrl();
+					url+="&signature="+sigs[i];
+					YtFile newFile=new YtFile(META_MAP.get(key), url);
+					ytFiles.put(key, newFile);
+				}
+			}
+		}
+		
 		if (ytFiles.size() == 0){
 			if(LOGGING)
 				Log.d(getClass().getSimpleName(), streamMap);
@@ -317,7 +333,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		return ytFiles;
 	}
 
-	private boolean decipherSignature(final String sig) throws IOException {
+	private boolean decipherSignature(final SparseArray<String> encSignatures) throws IOException {
 		// Assume the functions don't change that much
 		if (decipherFunctionName == null || decipherFunctions == null){
 			String decipherFunctUrl="http://s.ytimg.com/yts/jsbin/" + decipherJsFileName;
@@ -411,7 +427,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 				}
 				if(LOGGING)
 					Log.d(getClass().getSimpleName(), "Decipher Function: " + decipherFunctions);
-				decipherViaWebView(sig);
+				decipherViaWebView(encSignatures);
 				if (CACHING){
 					writeDeciperFunctToChache();
 				}
@@ -419,7 +435,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 				return false;
 			}
 		}else{
-			decipherViaWebView(sig);
+			decipherViaWebView(encSignatures);
 		}
 		return true;
 	}
@@ -493,7 +509,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		}
 	}
 
-	private void decipherViaWebView(final String sig) {
+	private void decipherViaWebView(final SparseArray<String> encSignatures) {
 		if (context == null){
 			return;
 		}
@@ -501,10 +517,18 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 
 			@Override
 			public void run() {
-				if (js == null){
-					js=new JsEvaluator(context);
+				JsEvaluator js=new JsEvaluator(context);
+				StringBuilder stb= new StringBuilder(decipherFunctions + " function decipher(");
+				stb.append("){return ");
+				for(int i=0; i<encSignatures.size();i++){
+					int key= encSignatures.keyAt(i);
+					if(i<encSignatures.size()-1)
+						stb.append(decipherFunctionName+"('"+encSignatures.get(key)+"')+\"\\n\"+");	
+					else
+						stb.append(decipherFunctionName+"('"+encSignatures.get(key)+"')");	
 				}
-				js.evaluate(decipherFunctions + " " + decipherFunctionName + "('" + sig + "');",
+				stb.append("};decipher();");
+				js.evaluate(stb.toString(),
 						new JsCallback() {
 							@Override
 							public void onResult(final String result) {
