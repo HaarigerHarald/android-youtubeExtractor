@@ -64,7 +64,6 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 	private static final Pattern patDashManifestEncSig=Pattern.compile("/s/([0-9A-F|\\.]{10,}?)(/|\\z)");
 
 	private static final Pattern patItag=Pattern.compile("itag=([0-9]+?)(&|,)");
-	private static final Pattern patSig=Pattern.compile("signature=(.+?)(&|,|\\\\)");
 	private static final Pattern patEncSig=Pattern.compile("s=([0-9A-F|\\.]{10,}?)(&|,|\")");
 	private static final Pattern patUrl=Pattern.compile("url=(.+?)(&|,)");
 
@@ -294,13 +293,8 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 			}else{
 				continue;
 			}
-			mat=patSig.matcher(stream);
-			String sig=null;
-			if (mat.find()){
-				sig=mat.group(1);
-			}
 
-			if (sig == null && curJsFileName != null){
+			if (curJsFileName != null){
 				mat=patEncSig.matcher(stream);
 				if (mat.find()){		
 					encSignatures.append(itag,mat.group(1));
@@ -315,9 +309,6 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 			if (url != null){
 				Meta meta=META_MAP.get(itag);
 				String finalUrl=URLDecoder.decode(url, "UTF-8");
-				if (!finalUrl.contains("signature=")&& (encSignatures==null || encSignatures.get(itag)==null)){
-					finalUrl+="&signature=" + sig;
-				}
 				YtFile newVideo=new YtFile(meta, finalUrl);
 				ytFiles.put(itag, newVideo);
 			}
