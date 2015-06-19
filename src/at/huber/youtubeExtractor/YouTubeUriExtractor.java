@@ -270,12 +270,11 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		SparseArray<YtFile> ytFiles=new SparseArray<YtFile>();
 		for(String encStream : streams){
 			encStream=encStream + ",";
-			String stream;
-			try{
-				stream=URLDecoder.decode(encStream, "UTF-8");
-			}catch (IllegalArgumentException iae){
+			if(!encStream.contains("itag%3D")){
 				continue;
 			}
+			String stream;
+			stream=URLDecoder.decode(encStream, "UTF-8");
 
 			mat=patItag.matcher(stream);
 			int itag=-1;
