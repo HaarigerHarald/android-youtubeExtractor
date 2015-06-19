@@ -37,6 +37,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 	private final static boolean LOGGING=false;
 	private final static String LOG_TAG="YouTubeUriExtractor";
 	private final static String CACHE_FILE_NAME="decipher_js_funct";
+	private final static int DASH_PARSE_RETRIES=5;
 
 	private Context context;
 	private String videoTitle="youtube";
@@ -346,24 +347,15 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, String, Spar
 		}
 		
 		if(parseDashManifest && dashMpdUrl!=null){
-			try{
-				parseDashManifest(dashMpdUrl, ytFiles);
-			}catch(IOException io1){
-				if(LOGGING)
-					Log.d(LOG_TAG, "Failed to parse dash manifest 1");
-				// It sometimes failes to connect for no apparent reason. We just retry.
+			for(int i=0; i<DASH_PARSE_RETRIES;i++){
 				try{
-					Thread.sleep(30);
+					// It sometimes failes to connect for no apparent reason. We just retry.
 					parseDashManifest(dashMpdUrl, ytFiles);
-				}catch(IOException io2){
+					break;
+				}catch(IOException io){
+					Thread.sleep(5);
 					if(LOGGING)
-						Log.d(LOG_TAG, "Failed to parse dash manifest 2");
-					try{
-						Thread.sleep(100);
-						parseDashManifest(dashMpdUrl, ytFiles);
-					}catch(IOException io3){
-						Log.e(LOG_TAG, "Failed to parse dash manifest 3");
-					}
+						Log.d(LOG_TAG, "Failed to parse dash manifest "+(i+1));
 				}
 			}
 		}
