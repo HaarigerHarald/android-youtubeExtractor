@@ -31,7 +31,7 @@ import android.util.SparseArray;
 import com.evgenii.jsevaluator.JsEvaluator;
 import com.evgenii.jsevaluator.interfaces.JsCallback;
 
-public abstract class YouTubeUriExtractor extends AsyncTask<String, String, SparseArray<YtFile>> {
+public abstract class YouTubeUriExtractor extends AsyncTask<String, Void, SparseArray<YtFile>> {
 	
 	private final static boolean CACHING=true;
 	private final static boolean LOGGING=false;
