@@ -8,8 +8,14 @@ buildscript {
 }
 apply plugin: 'com.android.application'
 
+repositories{
+    mavenCentral()
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
+    compile 'org.aspectj:aspectjrt:1.8.7'
+    compile 'com.googlecode.mp4parser:isoparser:1.1.14'
 }
 
 android {
