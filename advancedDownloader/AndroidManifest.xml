@@ -33,7 +33,8 @@
         
         <receiver 
             android:name="at.huber.youtubeDownloader.DownloadFinishedReceiver"
-            android:exported="true" >
+            android:exported="true"
+            android:process=".dlFinished" >
             <intent-filter>
                  <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
             </intent-filter>
