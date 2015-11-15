@@ -118,7 +118,11 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, Void, Sparse
 		META_MAP.put(315, new Meta(315, "webm", 2160, Meta.VCodec.VP9, 60, Meta.ACodec.NONE, true));
 
 		// WEBM Dash Audio
-		META_MAP.put(171, new Meta(171, "webm", Meta.VCodec.NONE, Meta.ACodec.VORBIS, 128, true));	
+		META_MAP.put(171, new Meta(171, "webm", Meta.VCodec.NONE, Meta.ACodec.VORBIS, 128, true));
+
+		META_MAP.put(249, new Meta(249, "webm", Meta.VCodec.NONE, Meta.ACodec.OPUS, 48, true));
+		META_MAP.put(250, new Meta(250, "webm", Meta.VCodec.NONE, Meta.ACodec.OPUS, 64, true));
+		META_MAP.put(251, new Meta(251, "webm", Meta.VCodec.NONE, Meta.ACodec.OPUS, 160, true));
 	}
 
 	public YouTubeUriExtractor(Context con) {

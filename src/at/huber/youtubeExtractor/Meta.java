@@ -7,7 +7,7 @@ public class Meta {
 	}
 
 	public enum ACodec {
-		MP3, AAC, VORBIS, NONE
+		MP3, AAC, VORBIS, OPUS, NONE
 	}
 
 	private int itag;
