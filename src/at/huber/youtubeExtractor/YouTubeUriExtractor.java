@@ -70,7 +70,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, Void, Sparse
 
 	private static final Pattern patVariableFunction = Pattern.compile("(\\{|;| |=)(([a-zA-Z$]{1}[a-zA-Z0-9$]{0,2}))\\.([a-zA-Z$]{1}[a-zA-Z0-9$]{0,2})\\(");
 	private static final Pattern patFunction = Pattern.compile("(\\{|;| |=)(([a-zA-Z$_]{1}[a-zA-Z0-9$]{0,2}))\\(");
-	private static final Pattern patDecryptionJsFile=Pattern.compile("html5player-(.+?).js");
+	private static final Pattern patDecryptionJsFile=Pattern.compile("jsbin\\\\/(player-(.+?).js)");
 	private static final Pattern patSignatureDecFunction=Pattern.compile("\\(\"signature\",((.+?))\\(");
 
 	private static final SparseArray<Meta> META_MAP=new SparseArray<Meta>();
@@ -232,7 +232,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, Void, Sparse
 			}
 			mat=patDecryptionJsFile.matcher(streamMap);
 			if (mat.find()){
-				curJsFileName=mat.group(0).replace("\\/", "/");
+				curJsFileName=mat.group(1).replace("\\/", "/");
 				if (decipherJsFileName == null || !decipherJsFileName.equals(curJsFileName)){
 					decipherFunctions=null;
 					decipherFunctionName=null;
@@ -403,8 +403,14 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, Void, Sparse
 				decipherFunctionName=mat.group(2);
 				if(LOGGING)
 					Log.d(LOG_TAG, "Decipher Functname: " + decipherFunctionName);
+				
+				
 				// Get the main function.
 				String mainDecipherFunct="function " + decipherFunctionName + "(";
+				if(!javascriptFile.contains(mainDecipherFunct)){
+					mainDecipherFunct="var "+ decipherFunctionName+"=function(";
+				}
+				
 				int startIndex=javascriptFile.indexOf(mainDecipherFunct) + mainDecipherFunct.length();
 				if (startIndex < mainDecipherFunct.length()){
 					return false;

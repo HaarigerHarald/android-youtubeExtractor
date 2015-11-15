@@ -25,9 +25,9 @@ public class ExtractorCase extends InstrumentationTestCase {
 	
 
 	public void testEncipheredVideo() throws Throwable {
-		extractorTest("http://youtube.com/watch?v=2zNSgSzhBfM", "2zNSgSzhBfM",
-				"MACKLEMORE & RYAN LEWIS - CAN'T HOLD US FEAT. RAY DALTON (OFFICIAL MUSIC VIDEO)");
-		extractorTestDashManifest("http://youtube.com/watch?v=2zNSgSzhBfM");
+		extractorTest("https://www.youtube.com/watch?v=e8X3ACToii0", "e8X3ACToii0",
+				"Rise Against - Savior");
+		extractorTestDashManifest("https://www.youtube.com/watch?v=e8X3ACToii0");
 	}
 
 	public void testAgeRestrictVideo() throws Throwable {
