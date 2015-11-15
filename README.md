@@ -36,6 +36,20 @@ The format data like: codec, container, height and audio bitrate can be accessed
 There is a very simple example YouTube Downloader app in the src directory, 
 that uses the "Share" function in the official YouTube app (no launcher entry).
 
+## Configuration
+    
+There are 3 configuration set functions that you can use to configure the extraction before calling execute. The 2 really important ones are:
+    
+    setParseDashManifest(boolean parseDashManifest) // Default: false
+    
+The dash manifest contains dash streams and usually additionally the higher quality audio formats.
+But the main difference is that dash streams from the dash manifest seem to not get throttled by the YouTube servers.
+If you don't use the dash streams at all leave it deactivated since it needs to download additional files for extraction.
+    
+    setIncludeWebM(boolean includeWebM) // Default: true
+    
+This excludes the webm container format streams from the result.
+
 ## Requirements
 
 Android 3.0 and up for Webview Javascript execution see [js-evaluator-for-android](https://github.com/evgenyneu/js-evaluator-for-android)
@@ -48,6 +62,7 @@ Those videos aren't working:
 
 * Everything private (private videos, bought movies, ...)
 * Live streams
+* Unavailable in your country
 * RTMPE urls (very rare)
 
 
