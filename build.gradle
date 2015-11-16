@@ -8,8 +8,14 @@ buildscript {
 }
 apply plugin: 'com.android.application'
 
+repositories{
+    maven { url "https://jitpack.io" }
+}
+
 dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
+    compile ('com.github.evgenyneu:js-evaluator-for-android:28fa5d9'){
+        exclude module: 'appcompat-v7'
+    }
 }
 
 android {

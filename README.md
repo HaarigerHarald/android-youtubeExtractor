@@ -52,7 +52,7 @@ This excludes the webm container format streams from the result.
 
 ## Requirements
 
-Android 3.0 and up for Webview Javascript execution see [js-evaluator-for-android](https://github.com/evgenyneu/js-evaluator-for-android)
+Android 4.0 and up for Webview Javascript execution see [js-evaluator-for-android](https://github.com/evgenyneu/js-evaluator-for-android)
 
 Not signature enciphered Videos may work on lower Android versions (untested).
 
