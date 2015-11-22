@@ -1,4 +1,4 @@
-package at.huber.sampleDownload.test;
+package at.huber.youtubeExtractor;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;

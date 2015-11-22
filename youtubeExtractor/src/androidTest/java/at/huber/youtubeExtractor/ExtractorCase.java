@@ -1,4 +1,4 @@
-package at.huber.sampleDownload.test;
+package at.huber.youtubeExtractor;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
