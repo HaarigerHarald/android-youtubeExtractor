@@ -19,7 +19,7 @@ android {
     }
 }
 
-repositories{
+repositories {
     mavenCentral()
 }
 
