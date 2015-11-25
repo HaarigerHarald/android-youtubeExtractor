@@ -13,47 +13,47 @@ It features an age verification circumvention and a signature deciphering method
 ## Usage
 
 It's build around an AsyncTask. Called from an Activity you can write:
-	
-    String youtubeLink = "http://youtube.com/watch?v=xxxx";
-    
-    YouTubeUriExtractor ytEx = new YouTubeUriExtractor(this) {
-        @Override
-        public void onUrisAvailable(String videoId, String videoTitle, SparseArray<YtFile> ytFiles) {
-            if(ytFiles!=null){
-                int itag = 22; // a YouTube format identifier
-                String downloadUrl = ytFiles.get(itag).getUrl();
-            }
+
+```java	
+String youtubeLink = "http://youtube.com/watch?v=xxxx";
+
+YouTubeUriExtractor ytEx = new YouTubeUriExtractor(this) {
+    @Override
+    public void onUrisAvailable(String videoId, String videoTitle, SparseArray<YtFile> ytFiles) {
+        if (ytFiles != null) {
+            int itag = 22;
+			String downloadUrl = ytFiles.get(itag).getUrl();
         }
-    };
+    }
+};
     
-    ytEx.execute(youtubeLink);
+ytEx.execute(youtubeLink);
+```
 
 The ytFiles SparseArray is a map of available media files for one YouTube video, accessible by their itag 
 value. For further infos about itags and their associated formats refer to: [Wikipedia - YouTube Quality and formats](http://en.wikipedia.org/wiki/YouTube#Quality_and_formats).
-
-The format data like: codec, container, height and audio bitrate can be accessed through getMeta() of the YtFile class.  
-
-There is a very simple example YouTube Downloader app in the src directory, 
-that uses the "Share" function in the official YouTube app (no launcher entry).
 
 ## Configuration
     
 There are 3 configuration set functions that you can use to configure the extraction before calling execute. The 2 really important ones are:
     
-    setParseDashManifest(boolean parseDashManifest) // Default: false
+```java
+setParseDashManifest(boolean parseDashManifest) // Default: false
+```
     
 The dash manifest contains dash streams and usually additionally the higher quality audio formats.
 But the main difference is that dash streams from the dash manifest seem to not get throttled by the YouTube servers.
 If you don't use the dash streams at all leave it deactivated since it needs to download additional files for extraction.
     
-    setIncludeWebM(boolean includeWebM) // Default: true
+```java 
+setIncludeWebM(boolean includeWebM) // Default: true
+```
     
 This excludes the webm container format streams from the result.
 
 ## Requirements
 
-Android 4.0 and up for Webview Javascript execution see [js-evaluator-for-android](https://github.com/evgenyneu/js-evaluator-for-android)
-
+Android **4.0.3** (API version 15) and up for Webview Javascript execution see: [js-evaluator-for-android](https://github.com/evgenyneu/js-evaluator-for-android).
 Not signature enciphered Videos may work on lower Android versions (untested).
 
 ## Limitations
@@ -66,23 +66,20 @@ Those videos aren't working:
 * RTMPE urls (very rare)
 
 
-## Advanced YouTube Downloader App
+## Modules
 
-There is also now an advanced App that addresses the following issues:
+* **youtubeExtractor:** The extractor android library.
 
-1. Some resolutions are only available separated in two files, one for audio and one for video. We need to merge them after the download is completed.
-There is a great Java library for doing this with mp4 files: [mp4parser](https://github.com/sannies/mp4parser)
+* **sampleApp:** A simple example downloader App.
 
-1. Some media players aren't able to read the dash container of the m4a audio files. This is also fixable via the library mentioned above.
+* **advancedDownloader:** A more sophisticated App using the [mp4parser](https://github.com/sannies/mp4parser) library to mux dash audio and video files together and add metadata to audio files after downloading. [youtubeDownloader.apk](https://github.com/HaarigerHarald/android-youtubeExtractor/releases/latest)
 
-To download, "Share" a video from the YouTube App or from your browser: [youtubeDownloader.apk](https://github.com/HaarigerHarald/android-youtubeExtractor/releases/latest)
-
-<img src='Screenshot_2015-04-26-17-04-382.png' width='30%' alt='youtubeDownloader Screenshot 1'>
+<img height="0" width="4%">
+<img src='Screenshot_2015-04-26-17-04-382.png' width='30%'>
 <img height="0" width="10%">
-<img src='Screenshot_2015-04-27-17-05-50.png' width='30%' alt='youtubeDownloader Screenshot 2'>
+<img src='Screenshot_2015-04-27-17-05-50.png' width='30%'>
 <img height="0" width="15%">
 
 ## License
 
-Modified BSD license see LICENSE and 3rd party licenses depending on what you need
-
+Modified BSD license see [LICENSE](LICENSE) and 3rd party licenses depending on what you need
