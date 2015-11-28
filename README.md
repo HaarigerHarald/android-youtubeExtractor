@@ -4,11 +4,10 @@ Android based YouTube url extractor
 These are the urls to the YouTube video or audio files, so you can stream or download them.
 It features an age verification circumvention and a signature deciphering method (mainly for vevo videos).
 
-## Integration
+* Builds: [![JitPack](https://img.shields.io/github/release/HaarigerHarald/android-youtubeExtractor.svg?label=JitPack)](https://jitpack.io/#HaarigerHarald/android-youtubeExtractor)
+* Jar Release: [youtubeExtractor.jar](https://github.com/HaarigerHarald/android-youtubeExtractor/releases/latest)
+* Dependency: [js-evaluator-for-android](https://github.com/evgenyneu/js-evaluator-for-android)
 
-* Import the jar library [youtubeExtractor.jar](https://github.com/HaarigerHarald/android-youtubeExtractor/releases/latest)
-
-* Or include the sources (you also need: [js-evaluator-for-android](https://github.com/evgenyneu/js-evaluator-for-android))
 
 ## Usage
 
