@@ -1,13 +1,11 @@
 package at.huber.youtubeExtractor;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -176,18 +174,15 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, Void, Sparse
         String dashMpdUrl = null;
         String streamMap = null;
         BufferedReader reader = null;
-        InputStream in = null;
         URL getUrl = new URL(ytInfoUrl);
         HttpURLConnection urlConnection = (HttpURLConnection) getUrl.openConnection();
         urlConnection.setRequestProperty("User-Agent", USER_AGENT);
         try {
-            in = new BufferedInputStream(urlConnection.getInputStream());
-            reader = new BufferedReader(new InputStreamReader(in));
+            reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
             streamMap = reader.readLine();
 
         } finally {
-            if (in != null && reader != null) {
-                in.close();
+            if (reader != null) {
                 reader.close();
             }
             urlConnection.disconnect();
@@ -210,8 +205,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, Void, Sparse
             urlConnection = (HttpURLConnection) getUrl.openConnection();
             urlConnection.setRequestProperty("User-Agent", USER_AGENT);
             try {
-                in = new BufferedInputStream(urlConnection.getInputStream());
-                reader = new BufferedReader(new InputStreamReader(in));
+                reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
                 String line;
                 while ((line = reader.readLine()) != null) {
                     // Log.d("line", line);
@@ -221,8 +215,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, Void, Sparse
                     }
                 }
             } finally {
-                if (in != null && reader != null) {
-                    in.close();
+                if (reader != null) {
                     reader.close();
                 }
                 urlConnection.disconnect();
@@ -378,15 +371,13 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, Void, Sparse
         if (decipherFunctionName == null || decipherFunctions == null) {
             String decipherFunctUrl = "https://s.ytimg.com/yts/jsbin/" + decipherJsFileName;
 
-            InputStream in = null;
             BufferedReader reader = null;
             String javascriptFile = null;
             URL url = new URL(decipherFunctUrl);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestProperty("User-Agent", USER_AGENT);
             try {
-                in = new BufferedInputStream(urlConnection.getInputStream());
-                reader = new BufferedReader(new InputStreamReader(in));
+                reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
                 StringBuilder sb = new StringBuilder("");
                 String line;
                 while ((line = reader.readLine()) != null) {
@@ -394,8 +385,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, Void, Sparse
                 }
                 javascriptFile = sb.toString();
             } finally {
-                if (in != null && reader != null) {
-                    in.close();
+                if (reader != null) {
                     reader.close();
                 }
                 urlConnection.disconnect();
@@ -490,19 +480,16 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, Void, Sparse
         Pattern patBaseUrl = Pattern.compile("<BaseURL yt:contentLength=\"[0-9]+?\">(.+?)</BaseURL>");
         String dashManifest;
         BufferedReader reader = null;
-        InputStream in = null;
         URL getUrl = new URL(dashMpdUrl);
         HttpURLConnection urlConnection = (HttpURLConnection) getUrl.openConnection();
         urlConnection.setRequestProperty("User-Agent", USER_AGENT);
         try {
-            in = new BufferedInputStream(urlConnection.getInputStream());
-            reader = new BufferedReader(new InputStreamReader(in));
+            reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
             reader.readLine();
             dashManifest = reader.readLine();
 
         } finally {
-            if (in != null && reader != null) {
-                in.close();
+            if (reader != null) {
                 reader.close();
             }
             urlConnection.disconnect();
