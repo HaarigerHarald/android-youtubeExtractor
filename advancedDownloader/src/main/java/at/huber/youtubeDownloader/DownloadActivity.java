@@ -7,12 +7,14 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.method.LinkMovementMethod;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -72,11 +74,14 @@ public class DownloadActivity extends Activity {
             public void onUrisAvailable(String videoId, String videoTitle, SparseArray<YtFile> ytFiles) {
                 mainProgressBar.setVisibility(View.GONE);
                 if (ytFiles == null) {
-                    finish();
+                    TextView tv = new TextView(DownloadActivity.this);
+                    tv.setText(R.string.app_update);
+                    tv.setMovementMethod(LinkMovementMethod.getInstance());
+                    mainLayout.addView(tv);
                     return;
                 }
-                formatsToShowList = new ArrayList<YtFragmentedVideo>();
-                for (int i = 0, itag = 0; i < ytFiles.size(); i++) {
+                formatsToShowList = new ArrayList<>();
+                for (int i = 0, itag; i < ytFiles.size(); i++) {
                     itag = ytFiles.keyAt(i);
                     YtFile ytFile = ytFiles.get(itag);
 
