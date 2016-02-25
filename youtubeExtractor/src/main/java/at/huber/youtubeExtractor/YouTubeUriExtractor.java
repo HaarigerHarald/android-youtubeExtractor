@@ -320,7 +320,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, Void, Sparse
             if (decipherSignature(encSignatures)) {
                 lock.lock();
                 try {
-                    jsExecuting.await(3, TimeUnit.SECONDS);
+                    jsExecuting.await(7, TimeUnit.SECONDS);
                 } finally {
                     lock.unlock();
                 }
