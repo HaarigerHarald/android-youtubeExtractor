@@ -15,7 +15,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import at.huber.youtubeExtractor.YouTubeUriExtractor;
+import at.huber.youtubeExtractor.VideoMeta;
+import at.huber.youtubeExtractor.YouTubeExtractor;
 import at.huber.youtubeExtractor.YtFile;
 
 public class SampleDownloadActivity extends Activity {
@@ -56,10 +57,10 @@ public class SampleDownloadActivity extends Activity {
     }
 
     private void getYoutubeDownloadUrl(String youtubeLink) {
-        YouTubeUriExtractor ytEx = new YouTubeUriExtractor(this) {
+        new YouTubeExtractor(this) {
 
             @Override
-            public void onUrisAvailable(String videoId, String videoTitle, SparseArray<YtFile> ytFiles) {
+            public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
                 mainProgressBar.setVisibility(View.GONE);
 
                 if (ytFiles == null) {
@@ -68,32 +69,26 @@ public class SampleDownloadActivity extends Activity {
                     return;
                 }
                 // Iterate over itags
-                for (int i = 0, itag = 0; i < ytFiles.size(); i++) {
+                for (int i = 0, itag; i < ytFiles.size(); i++) {
                     itag = ytFiles.keyAt(i);
                     // ytFile represents one file with its url and meta data
                     YtFile ytFile = ytFiles.get(itag);
 
                     // Just add videos in a decent format => height -1 = audio
-                    if (ytFile.getMeta().getHeight() == -1 || ytFile.getMeta().getHeight() >= 360) {
-                        addButtonToMainLayout(videoTitle, ytFile);
+                    if (ytFile.getFormat().getHeight() == -1 || ytFile.getFormat().getHeight() >= 360) {
+                        addButtonToMainLayout(vMeta.getTitle(), ytFile);
                     }
                 }
             }
-        };
-        // Ignore the webm container format
-        ytEx.setIncludeWebM(false);
-        ytEx.setParseDashManifest(true);
-        // Lets execute the request
-        ytEx.execute(youtubeLink);
-
+        }.extract(youtubeLink, true, false);
     }
 
     private void addButtonToMainLayout(final String videoTitle, final YtFile ytfile) {
         // Display some buttons and let the user choose the format
-        String btnText = (ytfile.getMeta().getHeight() == -1) ? "Audio " +
-                ytfile.getMeta().getAudioBitrate() + " kbit/s" :
-                ytfile.getMeta().getHeight() + "p";
-        btnText += (ytfile.getMeta().isDashContainer()) ? " dash" : "";
+        String btnText = (ytfile.getFormat().getHeight() == -1) ? "Audio " +
+                ytfile.getFormat().getAudioBitrate() + " kbit/s" :
+                ytfile.getFormat().getHeight() + "p";
+        btnText += (ytfile.getFormat().isDashContainer()) ? " dash" : "";
         Button btn = new Button(this);
         btn.setText(btnText);
         btn.setOnClickListener(new OnClickListener() {
@@ -102,9 +97,9 @@ public class SampleDownloadActivity extends Activity {
             public void onClick(View v) {
                 String filename;
                 if (videoTitle.length() > 55) {
-                    filename = videoTitle.substring(0, 55) + "." + ytfile.getMeta().getExt();
+                    filename = videoTitle.substring(0, 55) + "." + ytfile.getFormat().getExt();
                 } else {
-                    filename = videoTitle + "." + ytfile.getMeta().getExt();
+                    filename = videoTitle + "." + ytfile.getFormat().getExt();
                 }
                 filename = filename.replaceAll("\\\\|>|<|\"|\\||\\*|\\?|%|:|#|/", "");
                 downloadFromUrl(ytfile.getUrl(), videoTitle, filename);
@@ -123,7 +118,6 @@ public class SampleDownloadActivity extends Activity {
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
 
-        // get download service and enqueue file
         DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         manager.enqueue(request);
     }

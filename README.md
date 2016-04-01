@@ -31,17 +31,15 @@ It's build around an AsyncTask. Called from an Activity you can write:
 ```java	
 String youtubeLink = "http://youtube.com/watch?v=xxxx";
 
-YouTubeUriExtractor ytEx = new YouTubeUriExtractor(this) {
+new YouTubeExtractor(this) {
     @Override
-    public void onUrisAvailable(String videoId, String videoTitle, SparseArray<YtFile> ytFiles) {
+    public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
         if (ytFiles != null) {
             int itag = 22;
 			String downloadUrl = ytFiles.get(itag).getUrl();
         }
     }
-};
-    
-ytEx.execute(youtubeLink);
+}.extract(youtubeLink, true, true);
 ```
 
 The ytFiles SparseArray is a map of available media files for one YouTube video, accessible by their itag 

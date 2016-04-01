@@ -1,6 +1,6 @@
 package at.huber.youtubeExtractor;
 
-public class Meta {
+public class Format {
 
     public enum VCodec {
         H263, H264, MPEG4, VP8, VP9, NONE
@@ -19,7 +19,7 @@ public class Meta {
     private int audioBitrate;
     private boolean isDashContainer;
 
-    Meta(int itag, String ext, int height, VCodec vCodec, ACodec aCodec, boolean isDashContainer) {
+    Format(int itag, String ext, int height, VCodec vCodec, ACodec aCodec, boolean isDashContainer) {
         this.itag = itag;
         this.ext = ext;
         this.height = height;
@@ -28,7 +28,7 @@ public class Meta {
         this.isDashContainer = isDashContainer;
     }
 
-    Meta(int itag, String ext, VCodec vCodec, ACodec aCodec, int audioBitrate, boolean isDashContainer) {
+    Format(int itag, String ext, VCodec vCodec, ACodec aCodec, int audioBitrate, boolean isDashContainer) {
         this.itag = itag;
         this.ext = ext;
         this.height = -1;
@@ -37,8 +37,8 @@ public class Meta {
         this.isDashContainer = isDashContainer;
     }
 
-    Meta(int itag, String ext, int height, VCodec vCodec, ACodec aCodec, int audioBitrate,
-         boolean isDashContainer) {
+    Format(int itag, String ext, int height, VCodec vCodec, ACodec aCodec, int audioBitrate,
+           boolean isDashContainer) {
         this.itag = itag;
         this.ext = ext;
         this.height = height;
@@ -47,7 +47,7 @@ public class Meta {
         this.isDashContainer = isDashContainer;
     }
 
-    Meta(int itag, String ext, int height, VCodec vCodec, int fps, ACodec aCodec, boolean isDashContainer) {
+    Format(int itag, String ext, int height, VCodec vCodec, int fps, ACodec aCodec, boolean isDashContainer) {
         this.itag = itag;
         this.ext = ext;
         this.height = height;
