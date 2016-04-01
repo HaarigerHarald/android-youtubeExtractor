@@ -10,9 +10,6 @@ import android.test.InstrumentationTestCase;
 import android.util.Log;
 import android.util.SparseArray;
 
-import at.huber.youtubeExtractor.YouTubeUriExtractor;
-import at.huber.youtubeExtractor.YtFile;
-
 public class ExtractorCase extends InstrumentationTestCase {
 
     private static final String EXTRACTOR_TEST_TAG = "Extractor Test";
@@ -20,42 +17,48 @@ public class ExtractorCase extends InstrumentationTestCase {
     private String testUrl;
 
     public void testUsualVideo() throws Throwable {
-        extractorTest("http://youtube.com/watch?v=YE7VzlLtp-4", "YE7VzlLtp-4", "Big Buck Bunny");
+        VideoMeta expMeta = new VideoMeta("YE7VzlLtp-4", "Big Buck Bunny", "Blender Foundation",
+                "UCSMOQeBJ2RAnuFungnQOxLg", 597, 0);
+        extractorTest("http://youtube.com/watch?v=YE7VzlLtp-4", expMeta);
         extractorTestDashManifest("http://youtube.com/watch?v=YE7VzlLtp-4");
     }
 
 
     public void testEncipheredVideo() throws Throwable {
-        extractorTest("https://www.youtube.com/watch?v=e8X3ACToii0", "e8X3ACToii0",
-                "Rise Against - Savior");
+        VideoMeta expMeta = new VideoMeta("e8X3ACToii0", "Rise Against - Savior", "RiseAgainstVEVO",
+                "UChMKB2AHNpeuWhalpRYhUaw", 244, 0);
+        extractorTest("https://www.youtube.com/watch?v=e8X3ACToii0", expMeta);
         extractorTestDashManifest("https://www.youtube.com/watch?v=e8X3ACToii0");
     }
 
     public void testAgeRestrictVideo() throws Throwable {
-        extractorTest("http://www.youtube.com/watch?v=61Ev-YvBw2c", "61Ev-YvBw2c",
-                "Test video for age-restriction");
+        VideoMeta expMeta = new VideoMeta("61Ev-YvBw2c", "Test video for age-restriction",
+                "jpdemoA", "UC95NqtFsDZKlmzOJmZi_g6Q", 14, 0);
+        extractorTest("http://www.youtube.com/watch?v=61Ev-YvBw2c", expMeta);
         extractorTestDashManifest("http://www.youtube.com/watch?v=61Ev-YvBw2c");
     }
 
     private void extractorTestDashManifest(final String youtubeLink)
             throws Throwable {
         final CountDownLatch signal = new CountDownLatch(1);
+        YouTubeExtractor.LOGGING = true;
+
         testUrl = null;
 
         runTestOnUiThread(new Runnable() {
 
             @Override
             public void run() {
-                final YouTubeUriExtractor ytEx = new YouTubeUriExtractor(getInstrumentation()
+                final YouTubeExtractor ytEx = new YouTubeExtractor(getInstrumentation()
                         .getTargetContext()) {
                     @Override
-                    public void onUrisAvailable(String videoId, String videoTitle, SparseArray<YtFile> ytFiles) {
+                    public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta videoMeta) {
                         assertNotNull(ytFiles);
                         int numNotDash = 0;
                         int itag;
                         for (int i = 0; i < ytFiles.size(); i++) {
                             itag = ytFiles.keyAt(i);
-                            if (ytFiles.get(itag).getMeta().isDashContainer()) {
+                            if (ytFiles.get(itag).getFormat().isDashContainer()) {
                                 numNotDash = i;
                                 break;
                             }
@@ -66,8 +69,7 @@ public class ExtractorCase extends InstrumentationTestCase {
                         signal.countDown();
                     }
                 };
-                ytEx.setParseDashManifest(true);
-                ytEx.execute(youtubeLink);
+                ytEx.extract(youtubeLink, true, true);
             }
         });
 
@@ -84,21 +86,27 @@ public class ExtractorCase extends InstrumentationTestCase {
     }
 
 
-    private void extractorTest(final String youtubeLink, final String expVideoId, final String expVideoTitle)
+    private void extractorTest(final String youtubeLink, final VideoMeta expMeta)
             throws Throwable {
         final CountDownLatch signal = new CountDownLatch(1);
+        YouTubeExtractor.LOGGING = true;
+
         testUrl = null;
 
         runTestOnUiThread(new Runnable() {
 
             @Override
             public void run() {
-                final YouTubeUriExtractor ytEx = new YouTubeUriExtractor(getInstrumentation()
+                final YouTubeExtractor ytEx = new YouTubeExtractor(getInstrumentation()
                         .getTargetContext()) {
                     @Override
-                    public void onUrisAvailable(String videoId, String videoTitle, SparseArray<YtFile> ytFiles) {
-                        assertEquals(videoId, expVideoId);
-                        assertEquals(videoTitle, expVideoTitle);
+                    public void  onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta videoMeta) {
+                        assertEquals(expMeta.getVideoId(), videoMeta.getVideoId());
+                        assertEquals(expMeta.getTitle(),videoMeta.getTitle());
+                        assertEquals(expMeta.getAuthor(), videoMeta.getAuthor());
+                        assertEquals(expMeta.getChannelId(), videoMeta.getChannelId());
+                        assertEquals(expMeta.getVideoLength(), videoMeta.getVideoLength());
+                        assertNotSame(0, videoMeta.getViewCount());
                         assertNotNull(ytFiles);
                         int itag = ytFiles.keyAt(new Random().nextInt(ytFiles.size()));
                         Log.d(EXTRACTOR_TEST_TAG, "Testing itag:" + itag);
@@ -106,7 +114,7 @@ public class ExtractorCase extends InstrumentationTestCase {
                         signal.countDown();
                     }
                 };
-                ytEx.execute(youtubeLink);
+                ytEx.extract(youtubeLink, false, true);
             }
         });
 

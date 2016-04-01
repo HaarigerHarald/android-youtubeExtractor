@@ -43,7 +43,7 @@ public class DownloadFinishedReceiver extends BroadcastReceiver {
 
     private static final String TEMP_FILE_NAME = "tmp-";
     private static final Pattern ARTIST_TITLE_PATTERN =
-            Pattern.compile("(.+?)(\\s*?)-(\\s*?)(\"|)(\\S(.+?))\\s*?([\\&\\*+,-/:;<=>@_\\|]+?\\s*?|)(\\z|\"|\\(|\\[|lyric|official)",
+            Pattern.compile("(.+?)(\\s*?)-(\\s*?)(\"|)(\\S(.+?))\\s*?([&\\*+,-/:;<=>@_\\|]+?\\s*?|)(\\z|\"|\\(|\\[|lyric|official)",
                     Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     @Override
@@ -202,8 +202,7 @@ public class DownloadFinishedReceiver extends BroadcastReceiver {
             }
         }
         if (mBox != null) {
-            UserDataBox userDataBox = null;
-            userDataBox = new UserDataBox();
+            UserDataBox userDataBox = new UserDataBox();
             mBox.addBox(userDataBox);
             MetaBox metaBox = new MetaBox();
             userDataBox.addBox(metaBox);
@@ -231,7 +230,7 @@ public class DownloadFinishedReceiver extends BroadcastReceiver {
         List<Box> chunkOffsetBoxes = Path.getPaths(container, "/moov[0]/trak/mdia[0]/minf[0]/stbl[0]/stco[0]");
         for (Box chunkOffsetBox : chunkOffsetBoxes) {
 
-            LinkedList<Box> stblChildren = new LinkedList<Box>(chunkOffsetBox.getParent().getBoxes());
+            LinkedList<Box> stblChildren = new LinkedList<>(chunkOffsetBox.getParent().getBoxes());
             stblChildren.remove(chunkOffsetBox);
 
             long[] cOffsets = ((ChunkOffsetBox) chunkOffsetBox).getChunkOffsets();

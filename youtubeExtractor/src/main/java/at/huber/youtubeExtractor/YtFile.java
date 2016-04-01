@@ -2,11 +2,11 @@ package at.huber.youtubeExtractor;
 
 public class YtFile {
 
-    private Meta meta;
+    private Format format;
     private String url = "";
 
-    YtFile(Meta meta, String url) {
-        this.meta = meta;
+    YtFile(Format format, String url) {
+        this.format = format;
         this.url = url;
     }
 
@@ -18,9 +18,9 @@ public class YtFile {
     }
 
     /**
-     * Meta data for the specific file.
+     * Format data for the specific file.
      */
-    public Meta getMeta() {
-        return meta;
+    public Format getFormat() {
+        return format;
     }
 }
