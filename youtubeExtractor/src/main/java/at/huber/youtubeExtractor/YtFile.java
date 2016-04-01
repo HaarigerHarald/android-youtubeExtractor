@@ -23,4 +23,12 @@ public class YtFile {
     public Format getFormat() {
         return format;
     }
+
+    /**
+     * Format data for the specific file.
+     */
+    @Deprecated
+    public Format getMeta(){
+        return format;
+    }
 }
