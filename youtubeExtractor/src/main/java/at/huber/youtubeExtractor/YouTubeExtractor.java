@@ -156,7 +156,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
         this.execute(youtubeLink);
     }
 
-    public abstract void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta videoMeta);
+    protected abstract void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta videoMeta);
 
     @Override
     protected SparseArray<YtFile> doInBackground(String... params) {
