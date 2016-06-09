@@ -18,7 +18,7 @@ public class ExtractorCase extends InstrumentationTestCase {
 
     public void testUsualVideo() throws Throwable {
         VideoMeta expMeta = new VideoMeta("YE7VzlLtp-4", "Big Buck Bunny", "Blender Foundation",
-                "UCSMOQeBJ2RAnuFungnQOxLg", 597, 0);
+                "UCSMOQeBJ2RAnuFungnQOxLg", 597, 0, false);
         extractorTest("http://youtube.com/watch?v=YE7VzlLtp-4", expMeta);
         extractorTestDashManifest("http://youtube.com/watch?v=YE7VzlLtp-4");
     }
@@ -26,17 +26,23 @@ public class ExtractorCase extends InstrumentationTestCase {
 
     public void testEncipheredVideo() throws Throwable {
         VideoMeta expMeta = new VideoMeta("e8X3ACToii0", "Rise Against - Savior", "RiseAgainstVEVO",
-                "UChMKB2AHNpeuWhalpRYhUaw", 244, 0);
+                "UChMKB2AHNpeuWhalpRYhUaw", 244, 0, false);
         extractorTest("https://www.youtube.com/watch?v=e8X3ACToii0", expMeta);
-        extractorTestDashManifest("https://www.youtube.com/watch?v=e8X3ACToii0");
     }
 
     public void testAgeRestrictVideo() throws Throwable {
         VideoMeta expMeta = new VideoMeta("61Ev-YvBw2c", "Test video for age-restriction",
-                "jpdemoA", "UC95NqtFsDZKlmzOJmZi_g6Q", 14, 0);
+                "jpdemoA", "UC95NqtFsDZKlmzOJmZi_g6Q", 14, 0, false);
         extractorTest("http://www.youtube.com/watch?v=61Ev-YvBw2c", expMeta);
         extractorTestDashManifest("http://www.youtube.com/watch?v=61Ev-YvBw2c");
     }
+
+    public void testLiveStream() throws Throwable {
+        VideoMeta expMeta = new VideoMeta("njCDZWTI-xg", "NASA Video : Earth From Space  Real Footage -  Video From The International Space Station ISS",
+                "Space Videos", "UCakgsb0w7QB0VHdnCc-OVEA", 1800, 0, true);
+        extractorTest("http://www.youtube.com/watch?v=njCDZWTI-xg", expMeta);
+    }
+
 
     private void extractorTestDashManifest(final String youtubeLink)
             throws Throwable {
