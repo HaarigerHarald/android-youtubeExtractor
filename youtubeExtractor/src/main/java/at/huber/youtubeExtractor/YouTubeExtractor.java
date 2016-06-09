@@ -71,6 +71,9 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     private static final Pattern patLength = Pattern.compile("length_seconds=(\\d+?)(&|\\z)");
     private static final Pattern patViewCount = Pattern.compile("view_count=(\\d+?)(&|\\z)");
 
+    private static final Pattern patHlsvp = Pattern.compile("hlsvp=(.+?)(&|\\z)");
+    private static final Pattern patHlsItag = Pattern.compile("/itag/(\\d+?)/");
+
     private static final Pattern patItag = Pattern.compile("itag=([0-9]+?)(&|,)");
     private static final Pattern patEncSig = Pattern.compile("s=([0-9A-F|\\.]{10,}?)(&|,|\")");
     private static final Pattern patUrl = Pattern.compile("url=(.+?)(&|,)");
@@ -131,6 +134,14 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
         FORMAT_MAP.put(249, new Format(249, "webm", Format.VCodec.NONE, Format.ACodec.OPUS, 48, true));
         FORMAT_MAP.put(250, new Format(250, "webm", Format.VCodec.NONE, Format.ACodec.OPUS, 64, true));
         FORMAT_MAP.put(251, new Format(251, "webm", Format.VCodec.NONE, Format.ACodec.OPUS, 160, true));
+
+        // HLS Live Stream
+        FORMAT_MAP.put(91, new Format(91, "mp4", 144 ,Format.VCodec.H264, Format.ACodec.AAC, 48, false, true));
+        FORMAT_MAP.put(92, new Format(92, "mp4", 240 ,Format.VCodec.H264, Format.ACodec.AAC, 48, false, true));
+        FORMAT_MAP.put(93, new Format(93, "mp4", 360 ,Format.VCodec.H264, Format.ACodec.AAC, 128, false, true));
+        FORMAT_MAP.put(94, new Format(94, "mp4", 480 ,Format.VCodec.H264, Format.ACodec.AAC, 128, false, true));
+        FORMAT_MAP.put(95, new Format(95, "mp4", 720 ,Format.VCodec.H264, Format.ACodec.AAC, 256, false, true));
+        FORMAT_MAP.put(96, new Format(96, "mp4", 1080 ,Format.VCodec.H264, Format.ACodec.AAC, 256, false, true));
     }
 
     public YouTubeExtractor(Context con) {
@@ -215,6 +226,45 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
         SparseArray<String> encSignatures = null;
 
         parseVideoMeta(streamMap);
+
+        if(videoMeta.isLiveStream()){
+            mat = patHlsvp.matcher(streamMap);
+            if(mat.find()) {
+                String hlsvp = URLDecoder.decode(mat.group(1), "UTF-8");
+                SparseArray<YtFile> ytFiles = new SparseArray<>();
+
+                getUrl = new URL(hlsvp);
+                urlConnection = (HttpURLConnection) getUrl.openConnection();
+                urlConnection.setRequestProperty("User-Agent", USER_AGENT);
+                try {
+                    reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                       if(line.startsWith("https://") || line.startsWith("http://")){
+                           mat = patHlsItag.matcher(line);
+                           if(mat.find()){
+                               int itag = Integer.parseInt(mat.group(1));
+                               YtFile newFile = new YtFile(FORMAT_MAP.get(itag), line);
+                               ytFiles.put(itag, newFile);
+                           }
+                       }
+                    }
+                } finally {
+                    if (reader != null)
+                        reader.close();
+                    urlConnection.disconnect();
+                }
+
+                if (ytFiles.size() == 0) {
+                    if (LOGGING)
+                        Log.d(LOG_TAG, streamMap);
+                    return null;
+                }
+                return ytFiles;
+            }
+            return null;
+        }
+
 
         // Some videos are using a ciphered signature we need to get the
         // deciphering js-file from the youtubepage.
@@ -539,12 +589,18 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     }
 
     private void parseVideoMeta(String getVideoInfo) throws UnsupportedEncodingException {
+        boolean isLiveStream = false;
         String title = null, author = null, channelId = null;
         long viewCount = 0, length = 0;
         Matcher mat = patTitle.matcher(getVideoInfo);
         if (mat.find()) {
             title = URLDecoder.decode(mat.group(1), "UTF-8");
         }
+
+        mat = patHlsvp.matcher(getVideoInfo);
+        if(mat.find())
+            isLiveStream = true;
+
         mat = patAuthor.matcher(getVideoInfo);
         if (mat.find()) {
             author = URLDecoder.decode(mat.group(1), "UTF-8");
@@ -561,7 +617,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
         if (mat.find()) {
             viewCount = Long.parseLong(mat.group(1));
         }
-        videoMeta = new VideoMeta(videoID, title, author, channelId, length, viewCount);
+        videoMeta = new VideoMeta(videoID, title, author, channelId, length, viewCount, isLiveStream);
 
     }
 

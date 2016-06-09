@@ -73,7 +73,6 @@ Not signature enciphered Videos may work on lower Android versions (untested).
 Those videos aren't working:
 
 * Everything private (private videos, bought movies, ...)
-* Live streams
 * Unavailable in your country
 * RTMPE urls (very rare)
 

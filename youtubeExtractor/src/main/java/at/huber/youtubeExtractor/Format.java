@@ -18,6 +18,7 @@ public class Format {
     private ACodec aCodec;
     private int audioBitrate;
     private boolean isDashContainer;
+    private boolean isHlsContent;
 
     Format(int itag, String ext, int height, VCodec vCodec, ACodec aCodec, boolean isDashContainer) {
         this.itag = itag;
@@ -26,6 +27,7 @@ public class Format {
         this.fps = 30;
         this.audioBitrate = -1;
         this.isDashContainer = isDashContainer;
+        this.isHlsContent = false;
     }
 
     Format(int itag, String ext, VCodec vCodec, ACodec aCodec, int audioBitrate, boolean isDashContainer) {
@@ -35,6 +37,7 @@ public class Format {
         this.fps = 30;
         this.audioBitrate = audioBitrate;
         this.isDashContainer = isDashContainer;
+        this.isHlsContent = false;
     }
 
     Format(int itag, String ext, int height, VCodec vCodec, ACodec aCodec, int audioBitrate,
@@ -45,6 +48,18 @@ public class Format {
         this.fps = 30;
         this.audioBitrate = audioBitrate;
         this.isDashContainer = isDashContainer;
+        this.isHlsContent = false;
+    }
+
+    Format(int itag, String ext, int height, VCodec vCodec, ACodec aCodec, int audioBitrate,
+           boolean isDashContainer, boolean isHlsContent) {
+        this.itag = itag;
+        this.ext = ext;
+        this.height = height;
+        this.fps = 30;
+        this.audioBitrate = audioBitrate;
+        this.isDashContainer = isDashContainer;
+        this.isHlsContent = isHlsContent;
     }
 
     Format(int itag, String ext, int height, VCodec vCodec, int fps, ACodec aCodec, boolean isDashContainer) {
@@ -54,6 +69,7 @@ public class Format {
         this.audioBitrate = -1;
         this.fps = fps;
         this.isDashContainer = isDashContainer;
+        this.isHlsContent = false;
     }
 
     /**
@@ -94,6 +110,10 @@ public class Format {
 
     public VCodec getVideoCodec() {
         return vCodec;
+    }
+
+    public boolean isHlsContent() {
+        return isHlsContent;
     }
 
     /**
