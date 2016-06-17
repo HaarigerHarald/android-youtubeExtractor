@@ -347,3 +347,7 @@ Dash WEBM Audio
         Audio: Stereo, 44.1 KHz 256 Kbps
         Audio Format: AAC [DASH audio]
         Video: none
+        
+----
+
+Copied from [GenYoutube](http://www.genyoutube.net/formats-resolution-youtube-videos.html)
