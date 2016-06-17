@@ -47,6 +47,8 @@ ytEx.execute(youtubeLink);
 The ytFiles SparseArray is a map of available media files for one YouTube video, accessible by their itag 
 value. For further infos about itags and their associated formats refer to: [Wikipedia - YouTube Quality and formats](http://en.wikipedia.org/wiki/YouTube#Quality_and_formats).
 
+[More info on *itags*](ITAGS.md)
+
 ## Configuration
     
 There are 3 configuration set functions that you can use to configure the extraction before calling execute. The 2 really important ones are:
