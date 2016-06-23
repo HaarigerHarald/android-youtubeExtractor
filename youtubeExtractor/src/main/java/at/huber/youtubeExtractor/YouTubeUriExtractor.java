@@ -399,7 +399,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, Void, Sparse
                 if (LOGGING)
                     Log.d(LOG_TAG, "Decipher Functname: " + decipherFunctionName);
 
-                Pattern patMainVariable = Pattern.compile("(var |,)" + decipherFunctionName.replace("$", "\\$") +
+                Pattern patMainVariable = Pattern.compile("(var |)" + decipherFunctionName.replace("$", "\\$") +
                         "(=function\\((.{1,3})\\)\\{)");
 
                 String mainDecipherFunct;
@@ -408,7 +408,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, Void, Sparse
                 if (mat.find()) {
                     mainDecipherFunct = "var " + decipherFunctionName + mat.group(2);
                 } else {
-                    Pattern patMainFunction = Pattern.compile("(function |,)" + decipherFunctionName.replace("$", "\\$") +
+                    Pattern patMainFunction = Pattern.compile("function " + decipherFunctionName.replace("$", "\\$") +
                             "(\\((.{1,3})\\)\\{)");
                     mat = patMainFunction.matcher(javascriptFile);
                     if (!mat.find())
