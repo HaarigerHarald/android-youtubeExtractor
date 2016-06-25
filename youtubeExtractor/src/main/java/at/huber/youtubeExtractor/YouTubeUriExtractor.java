@@ -382,12 +382,12 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, Void, Sparse
                 String line;
                 while ((line = reader.readLine()) != null) {
                     sb.append(line);
+                    sb.append(" ");
                 }
                 javascriptFile = sb.toString();
             } finally {
-                if (reader != null) {
+                if (reader != null)
                     reader.close();
-                }
                 urlConnection.disconnect();
             }
 
@@ -399,7 +399,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, Void, Sparse
                 if (LOGGING)
                     Log.d(LOG_TAG, "Decipher Functname: " + decipherFunctionName);
 
-                Pattern patMainVariable = Pattern.compile("(var |)" + decipherFunctionName.replace("$", "\\$") +
+                Pattern patMainVariable = Pattern.compile("(var |\\s|,|;)" + decipherFunctionName.replace("$", "\\$") +
                         "(=function\\((.{1,3})\\)\\{)");
 
                 String mainDecipherFunct;
@@ -469,6 +469,7 @@ public abstract class YouTubeUriExtractor extends AsyncTask<String, Void, Sparse
                             braces--;
                     }
                 }
+
                 if (LOGGING)
                     Log.d(LOG_TAG, "Decipher Function: " + decipherFunctions);
                 decipherViaWebView(encSignatures);
