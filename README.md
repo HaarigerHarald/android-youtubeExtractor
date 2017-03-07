@@ -5,7 +5,6 @@ These are the urls to the YouTube video or audio files, so you can stream or dow
 It features an age verification circumvention and a signature deciphering method (mainly for vevo videos).
 
 * Builds: [![JitPack](https://jitpack.io/v/HaarigerHarald/android-youtubeExtractor.svg)](https://jitpack.io/#HaarigerHarald/android-youtubeExtractor)
-* Jar Release: [youtubeExtractor.jar](https://github.com/HaarigerHarald/android-youtubeExtractor/releases/latest)
 * Dependency: [js-evaluator-for-android](https://github.com/evgenyneu/js-evaluator-for-android)
 
 ## Gradle
@@ -47,21 +46,24 @@ value. For further infos about itags and their associated formats refer to: [Wik
 
 ## Configuration
     
-There are 3 configuration set functions that you can use to configure the extraction before calling execute. The 2 really important ones are:
+There are 2 configuration options set via extract:
     
 ```java
-setParseDashManifest(boolean parseDashManifest) // Default: false
+extract(youtubeLink, /*parseDashManifest*/ true, /*includeWebm*/ true);
 ```
-    
+
+**parseDashManifest**
+
 The dash manifest contains dash streams and usually additionally the higher quality audio formats.
 But the main difference is that dash streams from the dash manifest seem to not get throttled by the YouTube servers.
 If you don't use the dash streams at all leave it deactivated since it needs to download additional files for extraction.
-    
-```java 
-setIncludeWebM(boolean includeWebM) // Default: true
-```
-    
-This excludes the webm container format streams from the result.
+
+Known issue: the dash manifest can't be parsed for signature enciphered videos
+
+
+**includeWebm**
+
+If set to false it excludes the webm container format streams from the result.
 
 ## Requirements
 
