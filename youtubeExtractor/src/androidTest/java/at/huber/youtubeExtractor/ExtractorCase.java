@@ -38,9 +38,9 @@ public class ExtractorCase extends InstrumentationTestCase {
     }
 
     public void testLiveStream() throws Throwable {
-        VideoMeta expMeta = new VideoMeta("njCDZWTI-xg", "NASA Video : Earth From Space  Real Footage -  Video From The International Space Station ISS",
+        VideoMeta expMeta = new VideoMeta("qzMQza8xZCc", "Nasa LIVE stream - Earth From Space LIVE Feed | Incredible ISS live stream of Earth from space",
                 "Space Videos", "UCakgsb0w7QB0VHdnCc-OVEA", 1800, 0, true);
-        extractorTest("http://www.youtube.com/watch?v=njCDZWTI-xg", expMeta);
+        extractorTest("http://www.youtube.com/watch?v=qzMQza8xZCc", expMeta);
     }
 
 
