@@ -13,7 +13,7 @@ android {
 }
 
 dependencies {
-    compile('com.github.evgenyneu:js-evaluator-for-android:v1.0.7') {
+    compile('com.github.evgenyneu:js-evaluator-for-android:v2.0.0') {
         exclude module: 'appcompat-v7'
     }
 }

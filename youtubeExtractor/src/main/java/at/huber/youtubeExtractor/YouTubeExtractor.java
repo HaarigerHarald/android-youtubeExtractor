@@ -732,6 +732,18 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
                                     lock.unlock();
                                 }
                             }
+
+                            @Override
+                            public void onError(String errorMessage) {
+                                Log.e(LOG_TAG, "Js error: "+errorMessage);
+                                lock.lock();
+                                try {
+                                    decipheredSignature = null;
+                                    jsExecuting.signal();
+                                } finally {
+                                    lock.unlock();
+                                }
+                            }
                         });
             }
         });
