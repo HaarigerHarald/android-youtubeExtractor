@@ -123,4 +123,51 @@ public class Format {
         return height;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Format format = (Format) o;
+
+        if (itag != format.itag) return false;
+        if (height != format.height) return false;
+        if (fps != format.fps) return false;
+        if (audioBitrate != format.audioBitrate) return false;
+        if (isDashContainer != format.isDashContainer) return false;
+        if (isHlsContent != format.isHlsContent) return false;
+        if (ext != null ? !ext.equals(format.ext) : format.ext != null) return false;
+        if (vCodec != format.vCodec) return false;
+        return aCodec == format.aCodec;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = itag;
+        result = 31 * result + (ext != null ? ext.hashCode() : 0);
+        result = 31 * result + height;
+        result = 31 * result + fps;
+        result = 31 * result + (vCodec != null ? vCodec.hashCode() : 0);
+        result = 31 * result + (aCodec != null ? aCodec.hashCode() : 0);
+        result = 31 * result + audioBitrate;
+        result = 31 * result + (isDashContainer ? 1 : 0);
+        result = 31 * result + (isHlsContent ? 1 : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Format{" +
+                "itag=" + itag +
+                ", ext='" + ext + '\'' +
+                ", height=" + height +
+                ", fps=" + fps +
+                ", vCodec=" + vCodec +
+                ", aCodec=" + aCodec +
+                ", audioBitrate=" + audioBitrate +
+                ", isDashContainer=" + isDashContainer +
+                ", isHlsContent=" + isHlsContent +
+                '}';
+    }
 }
