@@ -35,7 +35,7 @@ public class YouTubeExtractor {
 
     protected static boolean LOGGING = false;
 
-    private final static String LOG_TAG = "AsyncYouTubeExtractor";
+    private final static String LOG_TAG = "YouTubeExtractor";
     private final static String CACHE_FILE_NAME = "decipher_js_funct";
     private final static int DASH_PARSE_RETRIES = 5;
 
@@ -151,22 +151,50 @@ public class YouTubeExtractor {
     /**
      * Start the extraction.
      *
-     * @param youtubeLink       the youtube page link or video id
+     * @param youtubeLink       the youtube page link
      * @param parseDashManifest true if the dash manifest should be downloaded and parsed
      * @param includeWebM       true if WebM streams should be extracted
      */
     public SparseArray<YtFile> extract(String youtubeLink, boolean parseDashManifest, boolean includeWebM) {
         this.parseDashManifest = parseDashManifest;
         this.includeWebM = includeWebM;
-        return extract(youtubeLink);
+        videoID = extractVideoId(youtubeLink);
+        return extractFromVideoId(videoID);
     }
 
-    private SparseArray<YtFile> extract(String youtubeLink) {
-        videoID = null;
+    /**
+     * Start the extraction.
+     *
+     * @param videoID           the  video id
+     * @param parseDashManifest true if the dash manifest should be downloaded and parsed
+     * @param includeWebM       true if WebM streams should be extracted
+     */
+    public SparseArray<YtFile> extractFromVideoId(String videoID, boolean parseDashManifest, boolean includeWebM) {
+        this.parseDashManifest = parseDashManifest;
+        this.includeWebM = includeWebM;
+        this.videoID = videoID;
+        return extractFromVideoId(this.videoID);
+    }
 
+    private SparseArray<YtFile> extractFromVideoId(String videoID) {
+        if (videoID != null) {
+            try {
+                return getStreamUrls();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.e(LOG_TAG, "Wrong YouTube link format");
+        }
+        return null;
+    }
+
+    public String extractVideoId(String youtubeLink) {
         if (youtubeLink == null) {
             return null;
         }
+
+        String videoID = null;
 
         youtubeLink = youtubeLink.trim();
         if (youtubeLink.isEmpty()) {
@@ -184,16 +212,7 @@ public class YouTubeExtractor {
                 videoID = youtubeLink;
             }
         }
-        if (videoID != null) {
-            try {
-                return getStreamUrls();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            Log.e(LOG_TAG, "Wrong YouTube link format");
-        }
-        return null;
+        return videoID;
     }
 
     private SparseArray<YtFile> getStreamUrls() throws IOException, InterruptedException {
