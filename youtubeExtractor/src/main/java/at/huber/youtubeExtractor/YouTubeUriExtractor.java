@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.SparseArray;
 
 @Deprecated
-public abstract class YouTubeUriExtractor extends YouTubeExtractor {
+public abstract class YouTubeUriExtractor extends AsyncYouTubeExtractor {
 
     public YouTubeUriExtractor(Context con) {
         super(con);

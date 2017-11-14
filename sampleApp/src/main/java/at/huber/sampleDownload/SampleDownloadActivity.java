@@ -16,7 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import at.huber.youtubeExtractor.VideoMeta;
-import at.huber.youtubeExtractor.YouTubeExtractor;
+import at.huber.youtubeExtractor.AsyncYouTubeExtractor;
 import at.huber.youtubeExtractor.YtFile;
 
 public class SampleDownloadActivity extends Activity {
@@ -57,7 +57,7 @@ public class SampleDownloadActivity extends Activity {
     }
 
     private void getYoutubeDownloadUrl(String youtubeLink) {
-        new YouTubeExtractor(this) {
+        new AsyncYouTubeExtractor(this) {
 
             @Override
             public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {

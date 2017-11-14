@@ -55,7 +55,7 @@ public class ExtractorCase extends InstrumentationTestCase {
 
             @Override
             public void run() {
-                final YouTubeExtractor ytEx = new YouTubeExtractor(getInstrumentation()
+                final AsyncYouTubeExtractor ytEx = new AsyncYouTubeExtractor(getInstrumentation()
                         .getTargetContext()) {
                     @Override
                     public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta videoMeta) {
@@ -103,12 +103,12 @@ public class ExtractorCase extends InstrumentationTestCase {
 
             @Override
             public void run() {
-                final YouTubeExtractor ytEx = new YouTubeExtractor(getInstrumentation()
+                final AsyncYouTubeExtractor ytEx = new AsyncYouTubeExtractor(getInstrumentation()
                         .getTargetContext()) {
                     @Override
-                    public void  onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta videoMeta) {
+                    public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta videoMeta) {
                         assertEquals(expMeta.getVideoId(), videoMeta.getVideoId());
-                        assertEquals(expMeta.getTitle(),videoMeta.getTitle());
+                        assertEquals(expMeta.getTitle(), videoMeta.getTitle());
                         assertEquals(expMeta.getAuthor(), videoMeta.getAuthor());
                         assertEquals(expMeta.getChannelId(), videoMeta.getChannelId());
                         assertEquals(expMeta.getVideoLength(), videoMeta.getVideoLength());

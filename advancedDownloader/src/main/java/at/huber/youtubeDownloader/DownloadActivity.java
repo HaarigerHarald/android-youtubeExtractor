@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import at.huber.youtubeExtractor.AsyncYouTubeExtractor;
 import at.huber.youtubeExtractor.VideoMeta;
-import at.huber.youtubeExtractor.YouTubeExtractor;
 import at.huber.youtubeExtractor.YtFile;
 
 public class DownloadActivity extends Activity {
@@ -69,7 +69,7 @@ public class DownloadActivity extends Activity {
     }
 
     private void getYoutubeDownloadUrl(String youtubeLink) {
-        new YouTubeExtractor(this) {
+        new AsyncYouTubeExtractor(this) {
 
             @Override
             public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {

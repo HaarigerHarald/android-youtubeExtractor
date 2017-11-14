@@ -1,7 +1,6 @@
 package at.huber.youtubeExtractor;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -30,13 +29,13 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArray<YtFile>> {
+public class YouTubeExtractor {
 
     private final static boolean CACHING = true;
 
     protected static boolean LOGGING = false;
 
-    private final static String LOG_TAG = "YouTubeExtractor";
+    private final static String LOG_TAG = "AsyncYouTubeExtractor";
     private final static String CACHE_FILE_NAME = "decipher_js_funct";
     private final static int DASH_PARSE_RETRIES = 5;
 
@@ -136,21 +135,16 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
         FORMAT_MAP.put(251, new Format(251, "webm", Format.VCodec.NONE, Format.ACodec.OPUS, 160, true));
 
         // HLS Live Stream
-        FORMAT_MAP.put(91, new Format(91, "mp4", 144 ,Format.VCodec.H264, Format.ACodec.AAC, 48, false, true));
-        FORMAT_MAP.put(92, new Format(92, "mp4", 240 ,Format.VCodec.H264, Format.ACodec.AAC, 48, false, true));
-        FORMAT_MAP.put(93, new Format(93, "mp4", 360 ,Format.VCodec.H264, Format.ACodec.AAC, 128, false, true));
-        FORMAT_MAP.put(94, new Format(94, "mp4", 480 ,Format.VCodec.H264, Format.ACodec.AAC, 128, false, true));
-        FORMAT_MAP.put(95, new Format(95, "mp4", 720 ,Format.VCodec.H264, Format.ACodec.AAC, 256, false, true));
-        FORMAT_MAP.put(96, new Format(96, "mp4", 1080 ,Format.VCodec.H264, Format.ACodec.AAC, 256, false, true));
+        FORMAT_MAP.put(91, new Format(91, "mp4", 144, Format.VCodec.H264, Format.ACodec.AAC, 48, false, true));
+        FORMAT_MAP.put(92, new Format(92, "mp4", 240, Format.VCodec.H264, Format.ACodec.AAC, 48, false, true));
+        FORMAT_MAP.put(93, new Format(93, "mp4", 360, Format.VCodec.H264, Format.ACodec.AAC, 128, false, true));
+        FORMAT_MAP.put(94, new Format(94, "mp4", 480, Format.VCodec.H264, Format.ACodec.AAC, 128, false, true));
+        FORMAT_MAP.put(95, new Format(95, "mp4", 720, Format.VCodec.H264, Format.ACodec.AAC, 256, false, true));
+        FORMAT_MAP.put(96, new Format(96, "mp4", 1080, Format.VCodec.H264, Format.ACodec.AAC, 256, false, true));
     }
 
     public YouTubeExtractor(Context con) {
         context = con;
-    }
-
-    @Override
-    protected void onPostExecute(SparseArray<YtFile> ytFiles) {
-        onExtractionComplete(ytFiles, videoMeta);
     }
 
 
@@ -161,30 +155,33 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
      * @param parseDashManifest true if the dash manifest should be downloaded and parsed
      * @param includeWebM       true if WebM streams should be extracted
      */
-    public void extract(String youtubeLink, boolean parseDashManifest, boolean includeWebM) {
+    public SparseArray<YtFile> extract(String youtubeLink, boolean parseDashManifest, boolean includeWebM) {
         this.parseDashManifest = parseDashManifest;
         this.includeWebM = includeWebM;
-        this.execute(youtubeLink);
+        return extract(youtubeLink);
     }
 
-    protected abstract void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta videoMeta);
-
-    @Override
-    protected SparseArray<YtFile> doInBackground(String... params) {
+    private SparseArray<YtFile> extract(String youtubeLink) {
         videoID = null;
-        String ytUrl = params[0];
-        if (ytUrl == null) {
+
+        if (youtubeLink == null) {
             return null;
         }
-        Matcher mat = patYouTubePageLink.matcher(ytUrl);
+
+        youtubeLink = youtubeLink.trim();
+        if (youtubeLink.isEmpty()) {
+            return null;
+        }
+
+        Matcher mat = patYouTubePageLink.matcher(youtubeLink);
         if (mat.find()) {
             videoID = mat.group(3);
         } else {
-            mat = patYouTubeShortLink.matcher(ytUrl);
+            mat = patYouTubeShortLink.matcher(youtubeLink);
             if (mat.find()) {
                 videoID = mat.group(3);
-            } else if (ytUrl.matches("\\p{Graph}+?")) {
-                videoID = ytUrl;
+            } else if (youtubeLink.matches("\\p{Graph}+?")) {
+                videoID = youtubeLink;
             }
         }
         if (videoID != null) {
@@ -227,9 +224,9 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
 
         parseVideoMeta(streamMap);
 
-        if(videoMeta.isLiveStream()){
+        if (videoMeta.isLiveStream()) {
             mat = patHlsvp.matcher(streamMap);
-            if(mat.find()) {
+            if (mat.find()) {
                 String hlsvp = URLDecoder.decode(mat.group(1), "UTF-8");
                 SparseArray<YtFile> ytFiles = new SparseArray<>();
 
@@ -240,14 +237,14 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
                     reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
                     String line;
                     while ((line = reader.readLine()) != null) {
-                       if(line.startsWith("https://") || line.startsWith("http://")){
-                           mat = patHlsItag.matcher(line);
-                           if(mat.find()){
-                               int itag = Integer.parseInt(mat.group(1));
-                               YtFile newFile = new YtFile(FORMAT_MAP.get(itag), line);
-                               ytFiles.put(itag, newFile);
-                           }
-                       }
+                        if (line.startsWith("https://") || line.startsWith("http://")) {
+                            mat = patHlsItag.matcher(line);
+                            if (mat.find()) {
+                                int itag = Integer.parseInt(mat.group(1));
+                                YtFile newFile = new YtFile(FORMAT_MAP.get(itag), line);
+                                ytFiles.put(itag, newFile);
+                            }
+                        }
                     }
                 } finally {
                     if (reader != null)
@@ -598,7 +595,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
         }
 
         mat = patHlsvp.matcher(getVideoInfo);
-        if(mat.find())
+        if (mat.find())
             isLiveStream = true;
 
         mat = patAuthor.matcher(getVideoInfo);
@@ -737,4 +734,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
         });
     }
 
+    public VideoMeta getVideoMeta() {
+        return videoMeta;
+    }
 }
