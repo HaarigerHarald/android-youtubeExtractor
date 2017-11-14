@@ -189,7 +189,7 @@ public class YouTubeExtractor {
         return null;
     }
 
-    public String extractVideoId(String youtubeLink) {
+    public static String extractVideoId(String youtubeLink) {
         if (youtubeLink == null) {
             return null;
         }
