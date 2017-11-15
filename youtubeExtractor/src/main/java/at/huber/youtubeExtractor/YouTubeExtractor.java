@@ -208,8 +208,6 @@ public class YouTubeExtractor {
             mat = patYouTubeShortLink.matcher(youtubeLink);
             if (mat.find()) {
                 videoID = mat.group(3);
-            } else if (youtubeLink.matches("\\p{Graph}+?")) {
-                videoID = youtubeLink;
             }
         }
         return videoID;
