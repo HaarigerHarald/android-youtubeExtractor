@@ -34,7 +34,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
 
     private final static boolean CACHING = true;
 
-    protected static boolean LOGGING = false;
+    static boolean LOGGING = false;
 
     private final static String LOG_TAG = "YouTubeExtractor";
     private final static String CACHE_FILE_NAME = "decipher_js_funct";
@@ -719,20 +719,30 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
 
             @Override
             public void run() {
-                JsEvaluator js = new JsEvaluator(context);
-                js.evaluate(stb.toString(),
-                        new JsCallback() {
-                            @Override
-                            public void onResult(final String result) {
-                                lock.lock();
-                                try {
-                                    decipheredSignature = result;
-                                    jsExecuting.signal();
-                                } finally {
-                                    lock.unlock();
-                                }
-                            }
-                        });
+                new JsEvaluator(context).evaluate(stb.toString(), new JsCallback() {
+                    @Override
+                    public void onResult(String result) {
+                        lock.lock();
+                        try {
+                            decipheredSignature = result;
+                            jsExecuting.signal();
+                        } finally {
+                            lock.unlock();
+                        }
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        lock.lock();
+                        try {
+                            if(LOGGING)
+                                Log.e(LOG_TAG, errorMessage);
+                            jsExecuting.signal();
+                        } finally {
+                            lock.unlock();
+                        }
+                    }
+                });
             }
         });
     }
