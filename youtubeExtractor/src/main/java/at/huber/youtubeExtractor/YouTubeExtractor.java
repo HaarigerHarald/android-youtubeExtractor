@@ -273,8 +273,8 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
         // exists int the stream_map.
         boolean sigEnc = true;
         if(streamMap != null && streamMap.contains(STREAM_MAP_STRING)){
-            streamMap = streamMap.substring(streamMap.indexOf(STREAM_MAP_STRING));
-            mat = patIsSigEnc.matcher(streamMap);
+            String streamMapSub = streamMap.substring(streamMap.indexOf(STREAM_MAP_STRING));
+            mat = patIsSigEnc.matcher(streamMapSub);
             if(!mat.find())
                 sigEnc = false;
         }
