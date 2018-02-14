@@ -81,8 +81,8 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     private static final Pattern patVariableFunction = Pattern.compile("(\\{|;| |=)([a-zA-Z$][a-zA-Z0-9$]{0,2})\\.([a-zA-Z$][a-zA-Z0-9$]{0,2})\\(");
     private static final Pattern patFunction = Pattern.compile("(\\{|;| |=)([a-zA-Z$_][a-zA-Z0-9$]{0,2})\\(");
     private static final Pattern patDecryptionJsFile = Pattern.compile("jsbin\\\\/(player-(.+?).js)");
-    private static final Pattern patSignatureDecFunction = Pattern.compile("\\(\"signature\",(.{1,3}?)\\(.{1,10}?\\)");
-
+    //private static final Pattern patSignatureDecFunction = Pattern.compile("\\(\"signature\",(.{1,3}?)\\(.{1,10}?\\)");
+    private static final Pattern patSignatureDecFunction = Pattern.compile("([\"\\'])signature\\1\\s*,\\s*([a-zA-Z0-9$]+)\\(");
     private static final SparseArray<Format> FORMAT_MAP = new SparseArray<>();
 
     static {
@@ -456,7 +456,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
                 Log.d(LOG_TAG, "Decipher FunctURL: " + decipherFunctUrl);
             Matcher mat = patSignatureDecFunction.matcher(javascriptFile);
             if (mat.find()) {
-                decipherFunctionName = mat.group(1);
+                decipherFunctionName = mat.group(2);
                 if (LOGGING)
                     Log.d(LOG_TAG, "Decipher Functname: " + decipherFunctionName);
 
