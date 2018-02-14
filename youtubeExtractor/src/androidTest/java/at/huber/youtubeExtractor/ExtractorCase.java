@@ -17,7 +17,7 @@ public class ExtractorCase extends InstrumentationTestCase {
     private String testUrl;
 
     public void testUsualVideo() throws Throwable {
-        VideoMeta expMeta = new VideoMeta("YE7VzlLtp-4", "Big Buck Bunny", "Blender Foundation",
+        VideoMeta expMeta = new VideoMeta("YE7VzlLtp-4", "Big Buck Bunny", "Blender",
                 "UCSMOQeBJ2RAnuFungnQOxLg", 597, 0, false);
         extractorTest("http://youtube.com/watch?v=YE7VzlLtp-4", expMeta);
         extractorTestDashManifest("http://youtube.com/watch?v=YE7VzlLtp-4");
@@ -26,7 +26,7 @@ public class ExtractorCase extends InstrumentationTestCase {
 
     public void testEncipheredVideo() throws Throwable {
         VideoMeta expMeta = new VideoMeta("e8X3ACToii0", "Rise Against - Savior", "RiseAgainstVEVO",
-                "UChMKB2AHNpeuWhalpRYhUaw", 244, 0, false);
+                "UChMKB2AHNpeuWhalpRYhUaw", 243, 0, false);
         extractorTest("https://www.youtube.com/watch?v=e8X3ACToii0", expMeta);
     }
 
@@ -38,9 +38,9 @@ public class ExtractorCase extends InstrumentationTestCase {
     }
 
     public void testLiveStream() throws Throwable {
-        VideoMeta expMeta = new VideoMeta("qzMQza8xZCc", "Nasa LIVE stream - Earth From Space LIVE Feed | Incredible ISS live stream of Earth from space",
-                "Space Videos", "UCakgsb0w7QB0VHdnCc-OVEA", 1800, 0, true);
-        extractorTest("http://www.youtube.com/watch?v=qzMQza8xZCc", expMeta);
+        VideoMeta expMeta = new VideoMeta("ddFvjfvPnqk", "NASA Live Stream - Earth From Space (Full Screen) | ISS LIVE FEED - Debunk Flat Earth",
+                "Space Videos", "UCakgsb0w7QB0VHdnCc-OVEA", 0, 0, true);
+        extractorTest("http://www.youtube.com/watch?v=ddFvjfvPnqk", expMeta);
     }
 
 
