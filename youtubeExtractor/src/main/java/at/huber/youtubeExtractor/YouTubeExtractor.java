@@ -164,7 +164,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     public void extract(String youtubeLink, boolean parseDashManifest, boolean includeWebM) {
         this.parseDashManifest = parseDashManifest;
         this.includeWebM = includeWebM;
-        this.execute(youtubeLink);
+        this.executeOnExecutor(THREAD_POOL_EXECUTOR,youtubeLink);
     }
 
     protected abstract void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta videoMeta);
