@@ -17,3 +17,14 @@ dependencies {
         exclude module: 'appcompat-v7'
     }
 }
+
+task clearJar(type: Delete) {
+    delete 'build/libs/youtubeExtractor.jar'
+}
+task makeJar(type: Copy) {
+    from('build/intermediates/bundles/release/')
+    into('release/')
+    include('classes.jar')
+    rename('classes.jar', 'youtubeExtractor.jar')
+}
+makeJar.dependsOn(clearJar, build)
