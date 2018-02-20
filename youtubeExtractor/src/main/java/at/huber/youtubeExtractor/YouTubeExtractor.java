@@ -33,7 +33,7 @@ public class YouTubeExtractor {
 
     private final static boolean CACHING = true;
 
-    protected static boolean LOGGING = false;
+    static boolean LOGGING = false;
 
     private final static String LOG_TAG = "YouTubeExtractor";
     private final static String CACHE_FILE_NAME = "decipher_js_funct";
@@ -56,13 +56,14 @@ public class YouTubeExtractor {
     private final Condition jsExecuting = lock.newCondition();
 
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36";
+    private static final String STREAM_MAP_STRING = "url_encoded_fmt_stream_map";
 
     private static final Pattern patYouTubePageLink = Pattern.compile("(http|https)://(www\\.|m.|)youtube\\.com/watch\\?v=(.+?)( |\\z|&)");
     private static final Pattern patYouTubeShortLink = Pattern.compile("(http|https)://(www\\.|)youtu.be/(.+?)( |\\z|&)");
 
     private static final Pattern patDashManifest1 = Pattern.compile("dashmpd=(.+?)(&|\\z)");
     private static final Pattern patDashManifest2 = Pattern.compile("\"dashmpd\":\"(.+?)\"");
-    private static final Pattern patDashManifestEncSig = Pattern.compile("/s/([0-9A-F|\\.]{10,}?)(/|\\z)");
+    private static final Pattern patDashManifestEncSig = Pattern.compile("/s/([0-9A-F|.]{10,}?)(/|\\z)");
 
     private static final Pattern patTitle = Pattern.compile("title=(.*?)(&|\\z)");
     private static final Pattern patAuthor = Pattern.compile("author=(.+?)(&|\\z)");
@@ -73,14 +74,15 @@ public class YouTubeExtractor {
     private static final Pattern patHlsvp = Pattern.compile("hlsvp=(.+?)(&|\\z)");
     private static final Pattern patHlsItag = Pattern.compile("/itag/(\\d+?)/");
 
-    private static final Pattern patItag = Pattern.compile("itag=([0-9]+?)(&|,)");
-    private static final Pattern patEncSig = Pattern.compile("s=([0-9A-F|\\.]{10,}?)(&|,|\")");
-    private static final Pattern patUrl = Pattern.compile("url=(.+?)(&|,)");
+    private static final Pattern patItag = Pattern.compile("itag=([0-9]+?)([&,])");
+    private static final Pattern patEncSig = Pattern.compile("s=([0-9A-F|.]{10,}?)([&,\"])");
+    private static final Pattern patIsSigEnc = Pattern.compile("s%3D([0-9A-F|.]{10,}?)%26");
+    private static final Pattern patUrl = Pattern.compile("url=(.+?)([&,])");
 
-    private static final Pattern patVariableFunction = Pattern.compile("(\\{|;| |=)([a-zA-Z$][a-zA-Z0-9$]{0,2})\\.([a-zA-Z$][a-zA-Z0-9$]{0,2})\\(");
-    private static final Pattern patFunction = Pattern.compile("(\\{|;| |=)([a-zA-Z$_][a-zA-Z0-9$]{0,2})\\(");
+    private static final Pattern patVariableFunction = Pattern.compile("([{; =])([a-zA-Z$][a-zA-Z0-9$]{0,2})\\.([a-zA-Z$][a-zA-Z0-9$]{0,2})\\(");
+    private static final Pattern patFunction = Pattern.compile("([{; =])([a-zA-Z$_][a-zA-Z0-9$]{0,2})\\(");
     private static final Pattern patDecryptionJsFile = Pattern.compile("jsbin\\\\/(player-(.+?).js)");
-    private static final Pattern patSignatureDecFunction = Pattern.compile("\\(\"signature\",(.{1,3}?)\\(.{1,10}?\\)");
+    private static final Pattern patSignatureDecFunction = Pattern.compile("\"signature\",(.{1,3}?)\\(.{1,10}?\\)");
 
     private static final SparseArray<Format> FORMAT_MAP = new SparseArray<>();
 
@@ -220,9 +222,11 @@ public class YouTubeExtractor {
                 + URLEncoder.encode("https://youtube.googleapis.com/v/" + videoID, "UTF-8");
 
         String dashMpdUrl = null;
-        String streamMap = null;
+        String streamMap;
         BufferedReader reader = null;
         URL getUrl = new URL(ytInfoUrl);
+        if(LOGGING)
+            Log.d(LOG_TAG, "infoUrl: " + ytInfoUrl);
         HttpURLConnection urlConnection = (HttpURLConnection) getUrl.openConnection();
         urlConnection.setRequestProperty("User-Agent", USER_AGENT);
         try {
@@ -279,10 +283,19 @@ public class YouTubeExtractor {
             return null;
         }
 
+        // "use_cipher_signature" disappeared, we check whether at least one ciphered signature
+        // exists int the stream_map.
+        boolean sigEnc = true;
+        if(streamMap != null && streamMap.contains(STREAM_MAP_STRING)){
+            String streamMapSub = streamMap.substring(streamMap.indexOf(STREAM_MAP_STRING));
+            mat = patIsSigEnc.matcher(streamMapSub);
+            if(!mat.find())
+                sigEnc = false;
+        }
 
         // Some videos are using a ciphered signature we need to get the
         // deciphering js-file from the youtubepage.
-        if (streamMap == null || !streamMap.contains("use_cipher_signature=False")) {
+        if (sigEnc) {
             // Get the video directly from the youtubepage
             if (CACHING
                     && (decipherJsFileName == null || decipherFunctions == null || decipherFunctionName == null)) {
@@ -296,7 +309,7 @@ public class YouTubeExtractor {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     // Log.d("line", line);
-                    if (line.contains("url_encoded_fmt_stream_map")) {
+                    if (line.contains(STREAM_MAP_STRING)) {
                         streamMap = line.replace("\\u0026", "&");
                         break;
                     }
@@ -340,7 +353,7 @@ public class YouTubeExtractor {
             streamMap = URLDecoder.decode(streamMap, "UTF-8");
         }
 
-        streams = streamMap.split(",|url_encoded_fmt_stream_map|&adaptive_fmts=");
+        streams = streamMap.split(",|"+STREAM_MAP_STRING+"|&adaptive_fmts=");
         SparseArray<YtFile> ytFiles = new SparseArray<>();
         for (String encStream : streams) {
             encStream = encStream + ",";
@@ -447,7 +460,7 @@ public class YouTubeExtractor {
             String decipherFunctUrl = "https://s.ytimg.com/yts/jsbin/" + decipherJsFileName;
 
             BufferedReader reader = null;
-            String javascriptFile = null;
+            String javascriptFile;
             URL url = new URL(decipherFunctUrl);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestProperty("User-Agent", USER_AGENT);
@@ -733,20 +746,30 @@ public class YouTubeExtractor {
 
             @Override
             public void run() {
-                JsEvaluator js = new JsEvaluator(context);
-                js.evaluate(stb.toString(),
-                        new JsCallback() {
-                            @Override
-                            public void onResult(final String result) {
-                                lock.lock();
-                                try {
-                                    decipheredSignature = result;
-                                    jsExecuting.signal();
-                                } finally {
-                                    lock.unlock();
-                                }
-                            }
-                        });
+                new JsEvaluator(context).evaluate(stb.toString(), new JsCallback() {
+                    @Override
+                    public void onResult(String result) {
+                        lock.lock();
+                        try {
+                            decipheredSignature = result;
+                            jsExecuting.signal();
+                        } finally {
+                            lock.unlock();
+                        }
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        lock.lock();
+                        try {
+                            if(LOGGING)
+                                Log.e(LOG_TAG, errorMessage);
+                            jsExecuting.signal();
+                        } finally {
+                            lock.unlock();
+                        }
+                    }
+                });
             }
         });
     }
