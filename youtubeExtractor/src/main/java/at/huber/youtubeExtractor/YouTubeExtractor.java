@@ -21,7 +21,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -83,6 +82,9 @@ public class YouTubeExtractor {
     private static final Pattern patFunction = Pattern.compile("([{; =])([a-zA-Z$_][a-zA-Z0-9$]{0,2})\\(");
     private static final Pattern patDecryptionJsFile = Pattern.compile("jsbin\\\\/(player-(.+?).js)");
     private static final Pattern patSignatureDecFunction = Pattern.compile("\"signature\",(.{1,3}?)\\(.{1,10}?\\)");
+
+    // Sometimes info can be with restrictions https://github.com/rg3/youtube-dl/issues/7362#issuecomment-153782704
+    private static final String[] EL_TYPE = new String[]{"info", "embedded, detailpage"};
 
     private static final SparseArray<Format> FORMAT_MAP = new SparseArray<>();
 
@@ -181,7 +183,7 @@ public class YouTubeExtractor {
     private SparseArray<YtFile> extractFromVideoId(String videoID) {
         if (videoID != null) {
             try {
-                return getStreamUrls();
+                return getStreamUrls(0);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -215,17 +217,23 @@ public class YouTubeExtractor {
         return videoID;
     }
 
-    private SparseArray<YtFile> getStreamUrls() throws IOException, InterruptedException {
+    private SparseArray<YtFile> retryGetStreamUrls(int tryNumber) throws IOException, InterruptedException {
+        return getStreamUrls(tryNumber + 1);
+    }
+
+    private SparseArray<YtFile> getStreamUrls(int tryNumber) throws IOException, InterruptedException {
+        if (tryNumber < EL_TYPE.length || tryNumber > EL_TYPE.length) {
+            return null;
+        }
 
         String ytInfoUrl = (useHttp) ? "http://" : "https://";
-        ytInfoUrl += "www.youtube.com/get_video_info?video_id=" + videoID + "&eurl="
-                + URLEncoder.encode("https://youtube.googleapis.com/v/" + videoID, "UTF-8");
+        ytInfoUrl += "www.youtube.com/get_video_info?&video_id=" + videoID + "&el=" + EL_TYPE[tryNumber] + "&ps=default";
 
         String dashMpdUrl = null;
         String streamMap;
         BufferedReader reader = null;
         URL getUrl = new URL(ytInfoUrl);
-        if(LOGGING)
+        if (LOGGING)
             Log.d(LOG_TAG, "infoUrl: " + ytInfoUrl);
         HttpURLConnection urlConnection = (HttpURLConnection) getUrl.openConnection();
         urlConnection.setRequestProperty("User-Agent", USER_AGENT);
@@ -276,20 +284,20 @@ public class YouTubeExtractor {
                 if (ytFiles.size() == 0) {
                     if (LOGGING)
                         Log.d(LOG_TAG, streamMap);
-                    return null;
+                    return retryGetStreamUrls(tryNumber);
                 }
                 return ytFiles;
             }
-            return null;
+            return retryGetStreamUrls(tryNumber);
         }
 
         // "use_cipher_signature" disappeared, we check whether at least one ciphered signature
         // exists int the stream_map.
         boolean sigEnc = true;
-        if(streamMap != null && streamMap.contains(STREAM_MAP_STRING)){
+        if (streamMap != null && streamMap.contains(STREAM_MAP_STRING)) {
             String streamMapSub = streamMap.substring(streamMap.indexOf(STREAM_MAP_STRING));
             mat = patIsSigEnc.matcher(streamMapSub);
-            if(!mat.find())
+            if (!mat.find())
                 sigEnc = false;
         }
 
@@ -353,7 +361,7 @@ public class YouTubeExtractor {
             streamMap = URLDecoder.decode(streamMap, "UTF-8");
         }
 
-        streams = streamMap.split(",|"+STREAM_MAP_STRING+"|&adaptive_fmts=");
+        streams = streamMap.split(",|" + STREAM_MAP_STRING + "|&adaptive_fmts=");
         SparseArray<YtFile> ytFiles = new SparseArray<>();
         for (String encStream : streams) {
             encStream = encStream + ",";
@@ -415,7 +423,7 @@ public class YouTubeExtractor {
             }
             signature = decipheredSignature;
             if (signature == null) {
-                return null;
+                return retryGetStreamUrls(tryNumber);
             } else {
                 String[] sigs = signature.split("\n");
                 for (int i = 0; i < encSignatures.size() && i < sigs.length; i++) {
@@ -449,7 +457,7 @@ public class YouTubeExtractor {
         if (ytFiles.size() == 0) {
             if (LOGGING)
                 Log.d(LOG_TAG, streamMap);
-            return null;
+            return retryGetStreamUrls(tryNumber);
         }
         return ytFiles;
     }
@@ -762,7 +770,7 @@ public class YouTubeExtractor {
                     public void onError(String errorMessage) {
                         lock.lock();
                         try {
-                            if(LOGGING)
+                            if (LOGGING)
                                 Log.e(LOG_TAG, errorMessage);
                             jsExecuting.signal();
                         } finally {
