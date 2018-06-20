@@ -222,7 +222,7 @@ public class YouTubeExtractor {
     }
 
     private SparseArray<YtFile> getStreamUrls(int tryNumber) throws IOException, InterruptedException {
-        if (tryNumber < EL_TYPE.length || tryNumber > EL_TYPE.length) {
+        if (tryNumber < 0 || tryNumber > EL_TYPE.length) {
             return null;
         }
 
