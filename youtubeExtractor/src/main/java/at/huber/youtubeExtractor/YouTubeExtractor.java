@@ -400,7 +400,7 @@ public class YouTubeExtractor {
             }
         }
 
-        if (encSignatures != null) {
+        if (encSignatures != null && encSignatures.size() > 0) {
             if (LOGGING)
                 Log.d(LOG_TAG, "Decipher signatures");
             String signature;
