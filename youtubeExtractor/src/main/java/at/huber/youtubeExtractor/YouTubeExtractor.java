@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -40,12 +42,13 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     private final static String CACHE_FILE_NAME = "decipher_js_funct";
     private final static int DASH_PARSE_RETRIES = 5;
 
-    private Context context;
+    private WeakReference<Context> refContext;
     private String videoID;
     private VideoMeta videoMeta;
     private boolean includeWebM = true;
     private boolean useHttp = false;
     private boolean parseDashManifest = false;
+    private String cacheDirPath;
 
     private volatile String decipheredSignature;
 
@@ -84,7 +87,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     private static final Pattern patFunction = Pattern.compile("([{; =])([a-zA-Z$_][a-zA-Z0-9$]{0,2})\\(");
     private static final Pattern patDecryptionJsFile = Pattern.compile("jsbin\\\\/(player-(.+?).js)");
     private static final Pattern patSignatureDecFunction = Pattern.compile("\"signature\",(.{1,3}?)\\(.{1,10}?\\)");
-
+    
     private static final SparseArray<Format> FORMAT_MAP = new SparseArray<>();
 
     static {
@@ -146,8 +149,9 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
         FORMAT_MAP.put(96, new Format(96, "mp4", 1080 ,Format.VCodec.H264, Format.ACodec.AAC, 256, false, true));
     }
 
-    public YouTubeExtractor(Context con) {
-        context = con;
+    public YouTubeExtractor(@NonNull Context con) {
+        refContext = new WeakReference<>(con);
+        cacheDirPath = con.getCacheDir().getAbsolutePath();
     }
 
     @Override
@@ -635,25 +639,23 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     }
 
     private void readDecipherFunctFromCache() {
-        if (context != null) {
-            File cacheFile = new File(context.getCacheDir().getAbsolutePath() + "/" + CACHE_FILE_NAME);
-            // The cached functions are valid for 2 weeks
-            if (cacheFile.exists() && (System.currentTimeMillis() - cacheFile.lastModified()) < 1209600000) {
-                BufferedReader reader = null;
-                try {
-                    reader = new BufferedReader(new InputStreamReader(new FileInputStream(cacheFile), "UTF-8"));
-                    decipherJsFileName = reader.readLine();
-                    decipherFunctionName = reader.readLine();
-                    decipherFunctions = reader.readLine();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    if (reader != null) {
-                        try {
-                            reader.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+        File cacheFile = new File(cacheDirPath + "/" + CACHE_FILE_NAME);
+        // The cached functions are valid for 2 weeks
+        if (cacheFile.exists() && (System.currentTimeMillis() - cacheFile.lastModified()) < 1209600000) {
+            BufferedReader reader = null;
+            try {
+                reader = new BufferedReader(new InputStreamReader(new FileInputStream(cacheFile), "UTF-8"));
+                decipherJsFileName = reader.readLine();
+                decipherFunctionName = reader.readLine();
+                decipherFunctions = reader.readLine();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -688,30 +690,30 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     }
 
     private void writeDeciperFunctToChache() {
-        if (context != null) {
-            File cacheFile = new File(context.getCacheDir().getAbsolutePath() + "/" + CACHE_FILE_NAME);
-            BufferedWriter writer = null;
-            try {
-                writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(cacheFile), "UTF-8"));
-                writer.write(decipherJsFileName + "\n");
-                writer.write(decipherFunctionName + "\n");
-                writer.write(decipherFunctions);
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (writer != null) {
-                    try {
-                        writer.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+        File cacheFile = new File(cacheDirPath + "/" + CACHE_FILE_NAME);
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(cacheFile), "UTF-8"));
+            writer.write(decipherJsFileName + "\n");
+            writer.write(decipherFunctionName + "\n");
+            writer.write(decipherFunctions);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         }
     }
 
     private void decipherViaWebView(final SparseArray<String> encSignatures) {
-        if (context == null) {
+        final Context context = refContext.get();
+        if (context == null)
+        {
             return;
         }
 
