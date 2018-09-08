@@ -80,12 +80,12 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
 
     private static final Pattern patItag = Pattern.compile("itag=([0-9]+?)([&,])");
     private static final Pattern patEncSig = Pattern.compile("s=([0-9A-F|.]{10,}?)([&,\"])");
-    private static final Pattern patIsSigEnc = Pattern.compile("s%3D([0-9A-F|.]{10,}?)%26");
+    private static final Pattern patIsSigEnc = Pattern.compile("s%3D([0-9A-F|.]{10,}?)(%26|%2C)");
     private static final Pattern patUrl = Pattern.compile("url=(.+?)([&,])");
 
     private static final Pattern patVariableFunction = Pattern.compile("([{; =])([a-zA-Z$][a-zA-Z0-9$]{0,2})\\.([a-zA-Z$][a-zA-Z0-9$]{0,2})\\(");
     private static final Pattern patFunction = Pattern.compile("([{; =])([a-zA-Z$_][a-zA-Z0-9$]{0,2})\\(");
-    private static final Pattern patDecryptionJsFile = Pattern.compile("jsbin\\\\/(player-(.+?).js)");
+    private static final Pattern patDecryptionJsFile = Pattern.compile("jsbin\\\\/(player(_ias)?-(.+?).js)");
     private static final Pattern patSignatureDecFunction = Pattern.compile("\"signature\",(.{1,3}?)\\(.{1,10}?\\)");
     
     private static final SparseArray<Format> FORMAT_MAP = new SparseArray<>();
@@ -314,6 +314,8 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
             mat = patDecryptionJsFile.matcher(streamMap);
             if (mat.find()) {
                 curJsFileName = mat.group(1).replace("\\/", "/");
+                if (mat.group(2) != null)
+                    curJsFileName.replace(mat.group(2), "");
                 if (decipherJsFileName == null || !decipherJsFileName.equals(curJsFileName)) {
                     decipherFunctions = null;
                     decipherFunctionName = null;
@@ -392,7 +394,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
 
         if (encSignatures != null) {
             if (LOGGING)
-                Log.d(LOG_TAG, "Decipher signatures");
+                Log.d(LOG_TAG, "Decipher signatures: " + encSignatures.size()+ ", videos: " + ytFiles.size());
             String signature;
             decipheredSignature = null;
             if (decipherSignature(encSignatures)) {

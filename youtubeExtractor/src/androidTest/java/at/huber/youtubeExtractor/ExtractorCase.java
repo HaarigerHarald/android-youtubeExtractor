@@ -69,8 +69,8 @@ public class ExtractorCase extends InstrumentationTestCase {
                             }
                         }
                         itag = ytFiles.keyAt(new Random().nextInt(ytFiles.size() - numNotDash) + numNotDash);
-                        Log.d(EXTRACTOR_TEST_TAG, "Testing itag:" + itag);
                         testUrl = ytFiles.get(itag).getUrl();
+                        Log.d(EXTRACTOR_TEST_TAG, "Testing itag: " + itag +", url:" + testUrl);
                         signal.countDown();
                     }
                 };
@@ -114,8 +114,8 @@ public class ExtractorCase extends InstrumentationTestCase {
                         assertNotSame(0, videoMeta.getViewCount());
                         assertNotNull(ytFiles);
                         int itag = ytFiles.keyAt(new Random().nextInt(ytFiles.size()));
-                        Log.d(EXTRACTOR_TEST_TAG, "Testing itag:" + itag);
                         testUrl = ytFiles.get(itag).getUrl();
+                        Log.d(EXTRACTOR_TEST_TAG, "Testing itag: " + itag +", url:" + testUrl);
                         signal.countDown();
                     }
                 };
