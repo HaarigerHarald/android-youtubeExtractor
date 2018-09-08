@@ -37,11 +37,11 @@ public class ExtractorCase extends InstrumentationTestCase {
         extractorTestDashManifest("http://www.youtube.com/watch?v=61Ev-YvBw2c");
     }
 
-    public void testLiveStream() throws Throwable {
-        VideoMeta expMeta = new VideoMeta("ddFvjfvPnqk", "NASA Live Stream - Earth From Space (Full Screen) | ISS LIVE FEED - Debunk Flat Earth",
-                "Space Videos", "UCakgsb0w7QB0VHdnCc-OVEA", 0, 0, true);
-        extractorTest("http://www.youtube.com/watch?v=ddFvjfvPnqk", expMeta);
-    }
+//    public void testLiveStream() throws Throwable {
+//        VideoMeta expMeta = new VideoMeta("ddFvjfvPnqk", "NASA Live Stream - Earth From Space (Full Screen) | ISS LIVE FEED - Debunk Flat Earth",
+//                "Space Videos", "UCakgsb0w7QB0VHdnCc-OVEA", 0, 0, true);
+//        extractorTest("http://www.youtube.com/watch?v=ddFvjfvPnqk", expMeta);
+//    }
 
 
     private void extractorTestDashManifest(final String youtubeLink)
