@@ -14,5 +14,5 @@ android {
 }
 
 dependencies {
-    compile project(':youtubeExtractor')
+    implementation project(':youtubeExtractor')
 }
