@@ -33,7 +33,7 @@ public class ExtractorCase extends InstrumentationTestCase {
         VideoMeta expMeta = new VideoMeta("61Ev-YvBw2c", "Test video for age-restriction",
                 "jpdemoA", "UC95NqtFsDZKlmzOJmZi_g6Q", 14, 0, false);
         extractorTest("http://www.youtube.com/watch?v=61Ev-YvBw2c", expMeta);
-        extractorTestDashManifest("http://www.youtube.com/watch?v=61Ev-YvBw2c");
+        // extractorTestDashManifest("http://www.youtube.com/watch?v=61Ev-YvBw2c");
     }
 
 //    public void testLiveStream() throws Throwable {

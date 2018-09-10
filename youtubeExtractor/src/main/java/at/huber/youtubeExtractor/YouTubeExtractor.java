@@ -567,7 +567,8 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     }
 
     private void parseDashManifest(String dashMpdUrl, SparseArray<YtFile> ytFiles) throws IOException {
-        Pattern patBaseUrl = Pattern.compile("<BaseURL yt:contentLength=\"[0-9]+?\">(.+?)</BaseURL>");
+        Pattern patBaseUrl = Pattern.compile("<\\s*BaseURL(.*?)>(.+?)<\\s*/BaseURL\\s*>");
+        Pattern patDashItag = Pattern.compile("itag/([0-9]+?)/");
         String dashManifest;
         BufferedReader reader = null;
         URL getUrl = new URL(dashMpdUrl);
@@ -588,8 +589,8 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
         Matcher mat = patBaseUrl.matcher(dashManifest);
         while (mat.find()) {
             int itag;
-            String url = mat.group(1);
-            Matcher mat2 = patItag.matcher(url);
+            String url = mat.group(2);
+            Matcher mat2 = patDashItag.matcher(url);
             if (mat2.find()) {
                 itag = Integer.parseInt(mat2.group(1));
                 if (FORMAT_MAP.get(itag) == null)
@@ -599,13 +600,9 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
             } else {
                 continue;
             }
-            url = url.replace("&amp;", "&").replace(",", "%2C").
-                    replace("mime=audio/", "mime=audio%2F").
-                    replace("mime=video/", "mime=video%2F");
             YtFile yf = new YtFile(FORMAT_MAP.get(itag), url);
             ytFiles.append(itag, yf);
         }
-
     }
 
     private void parseVideoMeta(String getVideoInfo) throws UnsupportedEncodingException {
