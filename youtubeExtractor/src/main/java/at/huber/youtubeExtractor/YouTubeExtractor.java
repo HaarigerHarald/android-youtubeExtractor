@@ -74,6 +74,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     private static final Pattern patChannelId = Pattern.compile("ucid=(.+?)(&|\\z)");
     private static final Pattern patLength = Pattern.compile("length_seconds=(\\d+?)(&|\\z)");
     private static final Pattern patViewCount = Pattern.compile("view_count=(\\d+?)(&|\\z)");
+    private static final Pattern patStatusOk = Pattern.compile("status=ok(&|,|\\z)");
 
     private static final Pattern patHlsvp = Pattern.compile("hlsvp=(.+?)(&|\\z)");
     private static final Pattern patHlsItag = Pattern.compile("/itag/(\\d+?)/");
@@ -276,22 +277,29 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
 
         // "use_cipher_signature" disappeared, we check whether at least one ciphered signature
         // exists int the stream_map.
-        boolean sigEnc = true;
+        boolean sigEnc = true, statusFail = false;
         if(streamMap != null && streamMap.contains(STREAM_MAP_STRING)){
             String streamMapSub = streamMap.substring(streamMap.indexOf(STREAM_MAP_STRING));
             mat = patIsSigEnc.matcher(streamMapSub);
-            if(!mat.find())
+            if(!mat.find()) {
                 sigEnc = false;
+
+                if (!patStatusOk.matcher(streamMap).find())
+                    statusFail = true;
+            }
         }
 
         // Some videos are using a ciphered signature we need to get the
         // deciphering js-file from the youtubepage.
-        if (sigEnc) {
+        if (sigEnc || statusFail) {
             // Get the video directly from the youtubepage
             if (CACHING
                     && (decipherJsFileName == null || decipherFunctions == null || decipherFunctionName == null)) {
                 readDecipherFunctFromCache();
             }
+            if (LOGGING)
+                Log.d(LOG_TAG, "Get from youtube page");
+            
             getUrl = new URL("https://youtube.com/watch?v=" + videoID);
             urlConnection = (HttpURLConnection) getUrl.openConnection();
             urlConnection.setRequestProperty("User-Agent", USER_AGENT);

@@ -23,6 +23,13 @@ public class ExtractorCase extends InstrumentationTestCase {
         extractorTestDashManifest("http://youtube.com/watch?v=YE7VzlLtp-4");
     }
 
+    public void testUnembeddable() throws Throwable {
+        VideoMeta expMeta = new VideoMeta("QH4VHl2uQ9o", "Match Chain Reaction Amazing Fire Art", "BLACKHAND",
+                "UCl9nsRuGenStMDZfD95w85A", 331, 0, false);
+        extractorTest("https://www.youtube.com/watch?v=QH4VHl2uQ9o", expMeta);
+        extractorTestDashManifest("https://www.youtube.com/watch?v=QH4VHl2uQ9o");
+    }
+
     public void testEncipheredVideo() throws Throwable {
         VideoMeta expMeta = new VideoMeta("e8X3ACToii0", "Rise Against - Savior", "RiseAgainstVEVO",
                 "UChMKB2AHNpeuWhalpRYhUaw", 243, 0, false);
@@ -86,6 +93,7 @@ public class ExtractorCase extends InstrumentationTestCase {
 
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         int code = con.getResponseCode();
+        con.getInputStream().close();
         con.disconnect();
         assertEquals(200, code);
     }
@@ -131,6 +139,7 @@ public class ExtractorCase extends InstrumentationTestCase {
 
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         int code = con.getResponseCode();
+        con.getInputStream().close();
         con.disconnect();
         assertEquals(200, code);
     }
