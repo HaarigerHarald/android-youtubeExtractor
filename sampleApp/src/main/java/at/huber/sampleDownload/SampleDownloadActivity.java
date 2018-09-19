@@ -101,7 +101,7 @@ public class SampleDownloadActivity extends Activity {
                 } else {
                     filename = videoTitle + "." + ytfile.getFormat().getExt();
                 }
-                filename = filename.replaceAll("\\\\|>|<|\"|\\||\\*|\\?|%|:|#|/", "");
+                filename = filename.replaceAll("[\\\\><\"|*?%:#/]", "");
                 downloadFromUrl(ytfile.getUrl(), videoTitle, filename);
                 finish();
             }

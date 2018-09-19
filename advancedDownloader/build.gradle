@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 27
     buildToolsVersion '27.0.3'
 
     defaultConfig {
@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    compile project(':youtubeExtractor')
-    compile 'org.aspectj:aspectjrt:1.8.13'
-    compile 'com.googlecode.mp4parser:isoparser:1.1.22'
+    implementation project(':youtubeExtractor')
+    implementation 'org.aspectj:aspectjrt:1.8.13'
+    implementation 'com.googlecode.mp4parser:isoparser:1.1.22'
 }
