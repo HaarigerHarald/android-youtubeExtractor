@@ -1,21 +1,22 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 23
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
     }
 }
 
 dependencies {
-    compile('com.github.evgenyneu:js-evaluator-for-android:v1.0.7') {
+    implementation('com.github.evgenyneu:js-evaluator-for-android:v4.0.0') {
         exclude module: 'appcompat-v7'
     }
+    implementation 'com.android.support:support-annotations:27.1.1'
 }
 
 task clearJar(type: Delete) {

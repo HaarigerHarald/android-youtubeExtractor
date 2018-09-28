@@ -149,7 +149,7 @@ public class DownloadActivity extends Activity {
                 } else {
                     filename = videoTitle;
                 }
-                filename = filename.replaceAll("\\\\|>|<|\"|\\||\\*|\\?|%|:|#|/", "");
+                filename = filename.replaceAll("[\\\\><\"|*?%:#/]", "");
                 filename += (ytFrVideo.height == -1) ? "" : "-" + ytFrVideo.height + "p";
                 String downloadIds = "";
                 boolean hideAudioDownloadNotification = false;
