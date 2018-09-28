@@ -172,7 +172,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     public void extract(String youtubeLink, boolean parseDashManifest, boolean includeWebM) {
         this.parseDashManifest = parseDashManifest;
         this.includeWebM = includeWebM;
-        this.execute(youtubeLink);
+        this.executeOnExecutor(THREAD_POOL_EXECUTOR,youtubeLink);
     }
 
     protected abstract void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta videoMeta);
@@ -401,7 +401,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
             }
         }
 
-        if (encSignatures != null) {
+        if (encSignatures != null && encSignatures.size() > 0) {
             if (LOGGING)
                 Log.d(LOG_TAG, "Decipher signatures: " + encSignatures.size()+ ", videos: " + ytFiles.size());
             String signature;
@@ -484,7 +484,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
                 Log.d(LOG_TAG, "Decipher FunctURL: " + decipherFunctUrl);
             Matcher mat = patSignatureDecFunction.matcher(javascriptFile);
             if (mat.find()) {
-                decipherFunctionName = mat.group(1);
+                decipherFunctionName = mat.group(2);
                 if (LOGGING)
                     Log.d(LOG_TAG, "Decipher Functname: " + decipherFunctionName);
 
