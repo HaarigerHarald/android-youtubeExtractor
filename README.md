@@ -20,7 +20,7 @@ repositories {
 And the dependency:
 
 ```java	
-compile 'com.github.HaarigerHarald:android-youtubeExtractor:master-SNAPSHOT'
+implementation 'com.github.HaarigerHarald:android-youtubeExtractor:master-SNAPSHOT'
 ```
 
 ## Usage
