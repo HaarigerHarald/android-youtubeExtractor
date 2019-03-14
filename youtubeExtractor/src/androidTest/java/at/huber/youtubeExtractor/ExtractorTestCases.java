@@ -1,21 +1,36 @@
 package at.huber.youtubeExtractor;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.FlakyTest;
+import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
+import android.util.SparseArray;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import android.test.InstrumentationTestCase;
-import android.util.Log;
-import android.util.SparseArray;
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertNotSame;
 
-public class ExtractorCase extends InstrumentationTestCase {
+@RunWith(AndroidJUnit4.class)
+@FlakyTest
+public class ExtractorTestCases {
 
     private static final String EXTRACTOR_TEST_TAG = "Extractor Test";
 
     private String testUrl;
 
+    @Test
     public void testUsualVideo() throws Throwable {
         VideoMeta expMeta = new VideoMeta("YE7VzlLtp-4", "Big Buck Bunny", "Blender",
                 "UCSMOQeBJ2RAnuFungnQOxLg", 597, 0, false);
@@ -23,6 +38,7 @@ public class ExtractorCase extends InstrumentationTestCase {
         extractorTestDashManifest("http://youtube.com/watch?v=YE7VzlLtp-4");
     }
 
+    @Test
     public void testUnembeddable() throws Throwable {
         VideoMeta expMeta = new VideoMeta("QH4VHl2uQ9o", "Match Chain Reaction Amazing Fire Art", "BLACKHAND",
                 "UCl9nsRuGenStMDZfD95w85A", 331, 0, false);
@@ -30,12 +46,14 @@ public class ExtractorCase extends InstrumentationTestCase {
         extractorTestDashManifest("https://www.youtube.com/watch?v=QH4VHl2uQ9o");
     }
 
+    @Test
     public void testEncipheredVideo() throws Throwable {
-        VideoMeta expMeta = new VideoMeta("e8X3ACToii0", "Rise Against - Savior", "RiseAgainstVEVO",
+        VideoMeta expMeta = new VideoMeta("e8X3ACToii0", "Rise Against - Savior (Official Video)", "RiseAgainstVEVO",
                 "UChMKB2AHNpeuWhalpRYhUaw", 243, 0, false);
         extractorTest("https://www.youtube.com/watch?v=e8X3ACToii0", expMeta);
     }
 
+    @Test
     public void testAgeRestrictVideo() throws Throwable {
         VideoMeta expMeta = new VideoMeta("61Ev-YvBw2c", "Test video for age-restriction",
                 "jpdemoA", "UC95NqtFsDZKlmzOJmZi_g6Q", 14, 0, false);
@@ -57,12 +75,11 @@ public class ExtractorCase extends InstrumentationTestCase {
 
         testUrl = null;
 
-        runTestOnUiThread(new Runnable() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
 
             @Override
             public void run() {
-                final YouTubeExtractor ytEx = new YouTubeExtractor(getInstrumentation()
-                        .getTargetContext()) {
+                final YouTubeExtractor ytEx = new YouTubeExtractor(InstrumentationRegistry.getContext()) {
                     @Override
                     public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta videoMeta) {
                         assertNotNull(ytFiles);
@@ -106,7 +123,7 @@ public class ExtractorCase extends InstrumentationTestCase {
 
         testUrl = null;
 
-        runTestOnUiThread(new Runnable() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
 
             @Override
             public void run() {
