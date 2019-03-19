@@ -86,7 +86,7 @@ public class YouTubeExtractor {
     private static final Pattern patFunction = Pattern.compile("([{; =])([a-zA-Z$_][a-zA-Z0-9$]{0,2})\\(");
   
     private static final Pattern patDecryptionJsFile = Pattern.compile("jsbin\\\\/(player(_ias)?-(.+?).js)");
-    private static final Pattern patSignatureDecFunction = Pattern.compile("(\\w+)\\s*=\\s*function\\((\\w+)\\).\\s*\\2=\\s*\\2\\.split\\(\"\"\\)\\s*;");
+    private static final Pattern patSignatureDecFunction = Pattern.compile("([\\w$]+)\\s*=\\s*function\\(([\\w$]+)\\).\\s*\\2=\\s*\\2\\.split\\(\"\"\\)\\s*;");
 
     // Sometimes info can be with restrictions https://github.com/rg3/youtube-dl/issues/7362#issuecomment-153782704
     private static final String[] EL_TYPE = new String[]{"info", "embedded, detailpage"};
@@ -321,7 +321,7 @@ public class YouTubeExtractor {
             }
             if (LOGGING)
                 Log.d(LOG_TAG, "Get from youtube page");
-            
+
             getUrl = new URL("https://youtube.com/watch?v=" + videoID);
             urlConnection = (HttpURLConnection) getUrl.openConnection();
             urlConnection.setRequestProperty("User-Agent", USER_AGENT);
