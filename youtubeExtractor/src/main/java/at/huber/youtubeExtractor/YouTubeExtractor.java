@@ -23,6 +23,7 @@ import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -84,7 +85,7 @@ public class YouTubeExtractor {
 
     private static final Pattern patVariableFunction = Pattern.compile("([{; =])([a-zA-Z$][a-zA-Z0-9$]{0,2})\\.([a-zA-Z$][a-zA-Z0-9$]{0,2})\\(");
     private static final Pattern patFunction = Pattern.compile("([{; =])([a-zA-Z$_][a-zA-Z0-9$]{0,2})\\(");
-  
+
     private static final Pattern patDecryptionJsFile = Pattern.compile("jsbin\\\\/(player(_ias)?-(.+?).js)");
     private static final Pattern patSignatureDecFunction = Pattern.compile("([\\w$]+)\\s*=\\s*function\\(([\\w$]+)\\).\\s*\\2=\\s*\\2\\.split\\(\"\"\\)\\s*;");
 
@@ -189,7 +190,7 @@ public class YouTubeExtractor {
     private SparseArray<YtFile> extractFromVideoId(String videoID) {
         if (videoID != null) {
             try {
-                return getStreamUrls(0);
+                return getStreamUrls();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -223,23 +224,16 @@ public class YouTubeExtractor {
         return videoID;
     }
 
-    private SparseArray<YtFile> retryGetStreamUrls(int tryNumber) throws IOException, InterruptedException {
-        return getStreamUrls(tryNumber + 1);
-    }
-
-    private SparseArray<YtFile> getStreamUrls(int tryNumber) throws IOException, InterruptedException {
-        if (tryNumber < 0 || tryNumber > EL_TYPE.length) {
-            return null;
-        }
-
+    private SparseArray<YtFile> getStreamUrls() throws IOException, InterruptedException {
         String ytInfoUrl = (useHttp) ? "http://" : "https://";
-        ytInfoUrl += "www.youtube.com/get_video_info?&video_id=" + videoID + "&el=" + EL_TYPE[tryNumber] + "&ps=default";
+        ytInfoUrl += "www.youtube.com/get_video_info?video_id=" + videoID + "&eurl="
+                + URLEncoder.encode("https://youtube.googleapis.com/v/" + videoID, "UTF-8");
 
         String dashMpdUrl = null;
         String streamMap;
         BufferedReader reader = null;
         URL getUrl = new URL(ytInfoUrl);
-        if (LOGGING)
+        if(LOGGING)
             Log.d(LOG_TAG, "infoUrl: " + ytInfoUrl);
         HttpURLConnection urlConnection = (HttpURLConnection) getUrl.openConnection();
         urlConnection.setRequestProperty("User-Agent", USER_AGENT);
@@ -259,9 +253,9 @@ public class YouTubeExtractor {
 
         parseVideoMeta(streamMap);
 
-        if (videoMeta.isLiveStream()) {
+        if(videoMeta.isLiveStream()){
             mat = patHlsvp.matcher(streamMap);
-            if (mat.find()) {
+            if(mat.find()) {
                 String hlsvp = URLDecoder.decode(mat.group(1), "UTF-8");
                 SparseArray<YtFile> ytFiles = new SparseArray<>();
 
@@ -272,9 +266,9 @@ public class YouTubeExtractor {
                     reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        if (line.startsWith("https://") || line.startsWith("http://")) {
+                        if(line.startsWith("https://") || line.startsWith("http://")){
                             mat = patHlsItag.matcher(line);
-                            if (mat.find()) {
+                            if(mat.find()){
                                 int itag = Integer.parseInt(mat.group(1));
                                 YtFile newFile = new YtFile(FORMAT_MAP.get(itag), line);
                                 ytFiles.put(itag, newFile);
@@ -290,11 +284,11 @@ public class YouTubeExtractor {
                 if (ytFiles.size() == 0) {
                     if (LOGGING)
                         Log.d(LOG_TAG, streamMap);
-                    return retryGetStreamUrls(tryNumber);
+                    return null;
                 }
                 return ytFiles;
             }
-            return retryGetStreamUrls(tryNumber);
+            return null;
         }
 
         // "use_cipher_signature" disappeared, we check whether at least one ciphered signature
@@ -376,7 +370,7 @@ public class YouTubeExtractor {
             streamMap = URLDecoder.decode(streamMap, "UTF-8");
         }
 
-        streams = streamMap.split(",|" + STREAM_MAP_STRING + "|&adaptive_fmts=");
+        streams = streamMap.split(",|"+STREAM_MAP_STRING+"|&adaptive_fmts=");
         SparseArray<YtFile> ytFiles = new SparseArray<>();
         for (String encStream : streams) {
             encStream = encStream + ",";
@@ -423,7 +417,7 @@ public class YouTubeExtractor {
             }
         }
 
-        if (encSignatures != null && encSignatures.size() > 0) {
+        if (encSignatures != null) {
             if (LOGGING)
                 Log.d(LOG_TAG, "Decipher signatures: " + encSignatures.size()+ ", videos: " + ytFiles.size());
             String signature;
@@ -438,7 +432,7 @@ public class YouTubeExtractor {
             }
             signature = decipheredSignature;
             if (signature == null) {
-                return retryGetStreamUrls(tryNumber);
+                return null;
             } else {
                 String[] sigs = signature.split("\n");
                 for (int i = 0; i < encSignatures.size() && i < sigs.length; i++) {
@@ -472,7 +466,7 @@ public class YouTubeExtractor {
         if (ytFiles.size() == 0) {
             if (LOGGING)
                 Log.d(LOG_TAG, streamMap);
-            return retryGetStreamUrls(tryNumber);
+            return null;
         }
         return ytFiles;
     }
