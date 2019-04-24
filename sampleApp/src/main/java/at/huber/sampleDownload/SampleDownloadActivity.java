@@ -17,11 +17,12 @@ import android.widget.Toast;
 
 import at.huber.youtubeExtractor.VideoMeta;
 import at.huber.youtubeExtractor.YouTubeExtractor;
-import at.huber.youtubeExtractor.YtFile;
+
 
 public class SampleDownloadActivity extends Activity {
 
     private static String youtubeLink;
+    private static int diksha;
 
     private LinearLayout mainLayout;
     private ProgressBar mainProgressBar;
