@@ -82,7 +82,9 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     private static final Pattern patItag = Pattern.compile("itag=([0-9]+?)([&,])");
     private static final Pattern patEncSig = Pattern.compile("s=([0-9A-F|.]{10,}?)([&,\"])");
     private static final Pattern patIsSigEnc = Pattern.compile("s%3D([0-9A-F|.]{10,}?)(%26|%2C)");
-    private static final Pattern patUrl = Pattern.compile("url=(.+?)([&,])");
+    private static final Pattern patEncSig2 = Pattern.compile("(\\A|&|\")s=([0-9A-Za-z\\-_=%]{10,}?)([&,\"])");
+    private static final Pattern patIsSigEnc2 = Pattern.compile("(%26|%3F|%2C)s%3D([0-9A-Za-z\\-_=%]{10,}?)(%26|%2C|\\z)");
+    private static final Pattern patUrl = Pattern.compile("url=(.+?)([&,\"])");
 
     private static final Pattern patVariableFunction = Pattern.compile("([{; =])([a-zA-Z$][a-zA-Z0-9$]{0,2})\\.([a-zA-Z$][a-zA-Z0-9$]{0,2})\\(");
     private static final Pattern patFunction = Pattern.compile("([{; =])([a-zA-Z$_][a-zA-Z0-9$]{0,2})\\(");
@@ -279,9 +281,8 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
         // exists int the stream_map.
         boolean sigEnc = true, statusFail = false;
         if(streamMap != null && streamMap.contains(STREAM_MAP_STRING)){
-            String streamMapSub = streamMap.substring(streamMap.indexOf(STREAM_MAP_STRING));
-            mat = patIsSigEnc.matcher(streamMapSub);
-            if(!mat.find()) {
+
+            if(!patIsSigEnc2.matcher(streamMap).find() && !patIsSigEnc.matcher(streamMap).find()) {
                 sigEnc = false;
 
                 if (!patStatusOk.matcher(streamMap).find())
@@ -354,6 +355,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
             streamMap = URLDecoder.decode(streamMap, "UTF-8");
         }
 
+        boolean oldSignature = false;
         streams = streamMap.split(",|"+STREAM_MAP_STRING+"|&adaptive_fmts=");
         SparseArray<YtFile> ytFiles = new SparseArray<>();
         for (String encStream : streams) {
@@ -382,9 +384,16 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
             }
 
             if (curJsFileName != null) {
-                mat = patEncSig.matcher(stream);
+                mat = patEncSig2.matcher(stream);
                 if (mat.find()) {
-                    encSignatures.append(itag, mat.group(1));
+                    encSignatures.append(itag, URLDecoder.decode(mat.group(2), "UTF-8"));
+                } else {
+                    mat = patEncSig.matcher(stream);
+                    if (mat.find())
+                    {
+                        encSignatures.append(itag, mat.group(1));
+                        oldSignature = true;
+                    }
                 }
             }
             mat = patUrl.matcher(encStream);
@@ -402,6 +411,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
         }
 
         if (encSignatures != null) {
+
             if (LOGGING)
                 Log.d(LOG_TAG, "Decipher signatures: " + encSignatures.size()+ ", videos: " + ytFiles.size());
             String signature;
@@ -425,7 +435,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
                         dashMpdUrl = dashMpdUrl.replace("/s/" + encSignatures.get(key), "/signature/" + sigs[i]);
                     } else {
                         String url = ytFiles.get(key).getUrl();
-                        url += "&signature=" + sigs[i];
+                        url += (oldSignature ? "&signature=" : "&sig=") + sigs[i];
                         YtFile newFile = new YtFile(FORMAT_MAP.get(key), url);
                         ytFiles.put(key, newFile);
                     }
