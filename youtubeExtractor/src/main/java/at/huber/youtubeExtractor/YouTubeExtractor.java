@@ -69,12 +69,12 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     private static final Pattern patDashManifest2 = Pattern.compile("\"dashmpd\":\"(.+?)\"");
     private static final Pattern patDashManifestEncSig = Pattern.compile("/s/([0-9A-F|.]{10,}?)(/|\\z)");
 
-    private static final Pattern patTitle = Pattern.compile("title=(.*?)(&|\\z)");
-    private static final Pattern patAuthor = Pattern.compile("author=(.+?)(&|\\z)");
-    private static final Pattern patChannelId = Pattern.compile("ucid=(.+?)(&|\\z)");
-    private static final Pattern patLength = Pattern.compile("length_seconds=(\\d+?)(&|\\z)");
-    private static final Pattern patViewCount = Pattern.compile("view_count=(\\d+?)(&|\\z)");
-    private static final Pattern patStatusOk = Pattern.compile("status=ok(&|,|\\z)");
+    private static final Pattern patTitle = Pattern.compile("title%22%3A%22(.*?)(%22|\\z)");
+    private static final Pattern patAuthor = Pattern.compile("author%22%3A%22(.+?)(%22|\\z)");
+    private static final Pattern patChannelId = Pattern.compile("channelId%22%3A%22(.+?)(%22|\\z)");
+    private static final Pattern patLength = Pattern.compile("lengthSeconds%22%3A%22(\\d+?)(%22|\\z)");
+    private static final Pattern patViewCount = Pattern.compile("viewCount%22%3A%22(\\d+?)(%22|\\z)");
+    private static final Pattern patStatusOk = Pattern.compile("status=ok(%22|,|\\z)");
 
     private static final Pattern patHlsvp = Pattern.compile("hlsvp=(.+?)(&|\\z)");
     private static final Pattern patHlsItag = Pattern.compile("/itag/(\\d+?)/");
