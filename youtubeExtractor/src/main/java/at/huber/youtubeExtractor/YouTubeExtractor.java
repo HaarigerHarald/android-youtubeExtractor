@@ -68,11 +68,11 @@ public class YouTubeExtractor {
     private static final Pattern patDashManifest2 = Pattern.compile("\"dashmpd\":\"(.+?)\"");
     private static final Pattern patDashManifestEncSig = Pattern.compile("/s/([0-9A-F|.]{10,}?)(/|\\z)");
 
-    private static final Pattern patTitle = Pattern.compile("title=(.*?)(&|\\z)");
-    private static final Pattern patAuthor = Pattern.compile("author=(.+?)(&|\\z)");
-    private static final Pattern patChannelId = Pattern.compile("ucid=(.+?)(&|\\z)");
-    private static final Pattern patLength = Pattern.compile("length_seconds=(\\d+?)(&|\\z)");
-    private static final Pattern patViewCount = Pattern.compile("view_count=(\\d+?)(&|\\z)");
+    private static final Pattern patTitle = Pattern.compile("title%22%3A%22(.*?)(%22|\\z)");
+    private static final Pattern patAuthor = Pattern.compile("author%22%3A%22(.+?)(%22|\\z)");
+    private static final Pattern patChannelId = Pattern.compile("channelId%22%3A%22(.+?)(%22|\\z)");
+    private static final Pattern patLength = Pattern.compile("lengthSeconds%22%3A%22(\\d+?)(%22|\\z)");
+    private static final Pattern patViewCount = Pattern.compile("viewCount%22%3A%22(\\d+?)(%22|\\z)");
     private static final Pattern patStatusOk = Pattern.compile("status=ok(&|,|\\z)");
 
     private static final Pattern patHlsvp = Pattern.compile("hlsvp=(.+?)(&|\\z)");
@@ -83,7 +83,7 @@ public class YouTubeExtractor {
     private static final Pattern patIsSigEnc = Pattern.compile("s%3D([0-9A-F|.]{10,}?)(%26|%2C)");
     private static final Pattern patEncSig2 = Pattern.compile("(\\A|&|\")s=([0-9A-Za-z\\-_=%]{10,}?)([&,\"])");
     private static final Pattern patIsSigEnc2 = Pattern.compile("(%26|%3F|%2C)s%3D([0-9A-Za-z\\-_=%]{10,}?)(%26|%2C|\\z)");
-    private static final Pattern patUrl = Pattern.compile("url=(.+?)([&,\"])");
+    private static final Pattern patUrl = Pattern.compile("url=(.+?)([&,\"\\\\])");
 
     private static final Pattern patVariableFunction = Pattern.compile("([{; =])([a-zA-Z$][a-zA-Z0-9$]{0,2})\\.([a-zA-Z$][a-zA-Z0-9$]{0,2})\\(");
     private static final Pattern patFunction = Pattern.compile("([{; =])([a-zA-Z$_][a-zA-Z0-9$]{0,2})\\(");

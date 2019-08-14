@@ -7,14 +7,17 @@ android {
         applicationId "at.huber.youtubeDownloader"
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 3
-        versionName "1.7"
+        versionCode 4
+        versionName "1.9"
     }
     buildTypes {
         release {
             proguardFile 'proguard.cfg'
             minifyEnabled true
         }
+    }
+    lintOptions {
+        checkReleaseBuilds false
     }
 }
 
