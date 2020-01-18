@@ -33,15 +33,14 @@ public class ExtractorTestCases {
     @Test
     public void testUsualVideo() throws Throwable {
         VideoMeta expMeta = new VideoMeta("YE7VzlLtp-4", "Big Buck Bunny", "Blender",
-                "UCSMOQeBJ2RAnuFungnQOxLg", 597, 0, false);
+                "UCSMOQeBJ2RAnuFungnQOxLg", 597, 0, false, "");
         extractorTest("http://youtube.com/watch?v=YE7VzlLtp-4", expMeta);
-        extractorTestDashManifest("http://youtube.com/watch?v=YE7VzlLtp-4");
     }
 
     @Test
     public void testUnembeddable() throws Throwable {
         VideoMeta expMeta = new VideoMeta("QH4VHl2uQ9o", "Match Chain Reaction Amazing Fire Art - real ghost rider", "BLACKHAND",
-                "UCl9nsRuGenStMDZfD95w85A", 331, 0, false);
+                "UCl9nsRuGenStMDZfD95w85A", 331, 0, false, "");
         extractorTest("https://www.youtube.com/watch?v=QH4VHl2uQ9o", expMeta);
         extractorTestDashManifest("https://www.youtube.com/watch?v=QH4VHl2uQ9o");
     }
@@ -49,14 +48,14 @@ public class ExtractorTestCases {
     @Test
     public void testEncipheredVideo() throws Throwable {
         VideoMeta expMeta = new VideoMeta("e8X3ACToii0", "Rise Against - Savior (Official Video)", "RiseAgainstVEVO",
-                "UChMKB2AHNpeuWhalpRYhUaw", 243, 0, false);
+                "UChMKB2AHNpeuWhalpRYhUaw", 243, 0, false, "");
         extractorTest("https://www.youtube.com/watch?v=e8X3ACToii0", expMeta);
     }
 
     @Test
     public void testAgeRestrictVideo() throws Throwable {
         VideoMeta expMeta = new VideoMeta("61Ev-YvBw2c", "Test video for age-restriction",
-                "jpdemoA", "UC95NqtFsDZKlmzOJmZi_g6Q", 14, 0, false);
+                "jpdemoA", "UC95NqtFsDZKlmzOJmZi_g6Q", 14, 0, false, "");
         extractorTest("http://www.youtube.com/watch?v=61Ev-YvBw2c", expMeta);
         // extractorTestDashManifest("http://www.youtube.com/watch?v=61Ev-YvBw2c");
     }

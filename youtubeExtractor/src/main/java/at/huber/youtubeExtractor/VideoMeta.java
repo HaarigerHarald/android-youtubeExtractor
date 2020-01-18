@@ -6,6 +6,7 @@ public class VideoMeta {
 
     private String videoId;
     private String title;
+    private String shortDescript;
 
     private String author;
     private String channelId;
@@ -15,7 +16,8 @@ public class VideoMeta {
 
     private boolean isLiveStream;
 
-    protected VideoMeta(String videoId, String title, String author, String channelId, long videoLength, long viewCount, boolean isLiveStream) {
+    protected VideoMeta(String videoId, String title, String author, String channelId,
+                        long videoLength, long viewCount, boolean isLiveStream, String shortDescript) {
         this.videoId = videoId;
         this.title = title;
         this.author = author;
@@ -23,8 +25,8 @@ public class VideoMeta {
         this.videoLength = videoLength;
         this.viewCount = viewCount;
         this.isLiveStream = isLiveStream;
+        this.shortDescript = shortDescript;
     }
-
 
     // 120 x 90
     public String getThumbUrl() {
@@ -80,6 +82,10 @@ public class VideoMeta {
 
     public long getViewCount() {
         return viewCount;
+    }
+
+    public String getShortDescription() {
+        return shortDescript;
     }
 
     @Override
