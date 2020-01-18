@@ -339,7 +339,6 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
             String url;
             if (sigEnc) {
                 String cipher = mat.group(1);
-                Log.d(LOG_TAG, cipher);
                 Matcher mat2 = patCipherUrl.matcher(cipher);
                 if (mat2.find()) {
                     url = URLDecoder.decode(mat2.group(1), "UTF-8");
@@ -382,7 +381,6 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
             }
 
             Format format = FORMAT_MAP.get(itag);
-            Log.d(LOG_TAG, url);
             YtFile newVideo = new YtFile(format, url);
             ytFiles.put(itag, newVideo);
         }
