@@ -83,7 +83,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     private static final Pattern patFunction = Pattern.compile("([{; =])([a-zA-Z$_][a-zA-Z0-9$]{0,2})\\(");
   
     private static final Pattern patDecryptionJsFile = Pattern.compile("jsbin\\\\/(player(_ias)?-(.+?).js)");
-    private static final Pattern patSignatureDecFunction = Pattern.compile("([\\w$]+)\\s*=\\s*function\\(([\\w$]+)\\).\\s*\\2=\\s*\\2\\.split\\(\"\"\\)\\s*;");
+    private static final Pattern patSignatureDecFunction = Pattern.compile("\\b([\\w$]{2})\\s*=\\s*function\\((\\w+)\\)\\{\\s*\\2=\\s*\\2\\.split\\(\"\"\\)\\s*;");
 
     private static final SparseArray<Format> FORMAT_MAP = new SparseArray<>();
 
