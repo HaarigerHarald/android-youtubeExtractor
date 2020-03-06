@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -21,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.ref.WeakReference;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -31,6 +31,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArray<YtFile>> {
 
@@ -151,9 +156,28 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
         FORMAT_MAP.put(96, new Format(96, "mp4", 1080, Format.VCodec.H264, Format.ACodec.AAC, 256, false, true));
     }
 
+    private OkHttpClient mClient;
+
     public YouTubeExtractor(@NonNull Context con) {
         refContext = new WeakReference<>(con);
         cacheDirPath = con.getCacheDir().getAbsolutePath();
+
+        mClient = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .addInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        final Request original = chain.request();
+                        final Request header = original.newBuilder()
+                                .addHeader("User-Agent", USER_AGENT)
+                                .build();
+                        return chain.proceed(header);
+                    }
+                })
+                .build();
+
     }
 
     @Override
@@ -238,27 +262,15 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     }
 
     private SparseArray<YtFile> getStreamUrls() throws IOException, InterruptedException {
-
         String ytInfoUrl = (useHttp) ? "http://" : "https://";
         ytInfoUrl += "www.youtube.com/get_video_info?video_id=" + videoID + "&eurl="
                 + URLEncoder.encode("https://youtube.googleapis.com/v/" + videoID, "UTF-8");
 
         String streamMap;
         BufferedReader reader = null;
-        URL getUrl = new URL(ytInfoUrl);
         if (LOGGING)
             Log.d(LOG_TAG, "infoUrl: " + ytInfoUrl);
-        HttpURLConnection urlConnection = (HttpURLConnection) getUrl.openConnection();
-        urlConnection.setRequestProperty("User-Agent", USER_AGENT);
-        try {
-            reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            streamMap = reader.readLine();
-
-        } finally {
-            if (reader != null)
-                reader.close();
-            urlConnection.disconnect();
-        }
+        streamMap = OkHttpHelper.makeRequest(mClient, ytInfoUrl);
         Matcher mat;
         String curJsFileName;
         SparseArray<String> encSignatures = null;
@@ -274,25 +286,18 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
                 String hlsvp = URLDecoder.decode(mat.group(1), "UTF-8");
                 SparseArray<YtFile> ytFiles = new SparseArray<>();
 
-                getUrl = new URL(hlsvp);
-                urlConnection = (HttpURLConnection) getUrl.openConnection();
-                urlConnection.setRequestProperty("User-Agent", USER_AGENT);
-                try {
-                    reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        if (line.startsWith("https://") || line.startsWith("http://")) {
-                            mat = patHlsItag.matcher(line);
-                            if (mat.find()) {
-                                int itag = Integer.parseInt(mat.group(1));
-                                YtFile newFile = new YtFile(FORMAT_MAP.get(itag), line);
-                                ytFiles.put(itag, newFile);
-                            }
+                String[] result = OkHttpHelper.makeRequest(mClient, hlsvp).split("\n");
+                for (String line : result) {
+                    if (TextUtils.isEmpty(line))
+                        continue;
+                    if (line.startsWith("https://") || line.startsWith("http://")) {
+                        mat = patHlsItag.matcher(line);
+                        if (mat.find()) {
+                            int itag = Integer.parseInt(mat.group(1));
+                            YtFile newFile = new YtFile(FORMAT_MAP.get(itag), line);
+                            ytFiles.put(itag, newFile);
                         }
                     }
-                } finally {
-                    reader.close();
-                    urlConnection.disconnect();
                 }
 
                 if (ytFiles.size() == 0) {
@@ -326,24 +331,18 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
             if (LOGGING)
                 Log.d(LOG_TAG, "Get from youtube page");
 
-            getUrl = new URL("https://youtube.com/watch?v=" + videoID);
-            urlConnection = (HttpURLConnection) getUrl.openConnection();
-            urlConnection.setRequestProperty("User-Agent", USER_AGENT);
-            try {
-                reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    // Log.d("line", line);
-                    mat = patYtPlayer.matcher(line);
-                    if (mat.find()) {
-                        streamMap = line.replace("\\\"", "\"");
-                        break;
-                    }
+            String[] result = OkHttpHelper.makeRequest(
+                    mClient, "https://youtube.com/watch?v=" + videoID).split("\n");
+            for (String line : result) {
+                if (TextUtils.isEmpty(line))
+                    continue;
+                mat = patYtPlayer.matcher(line);
+                if (mat.find()) {
+                    streamMap = line.replace("\\\"", "\"");
+                    break;
                 }
-            } finally {
-                reader.close();
-                urlConnection.disconnect();
             }
+
             encSignatures = new SparseArray<>();
 
             mat = patDecryptionJsFile.matcher(streamMap);
@@ -460,25 +459,16 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
         if (decipherFunctionName == null || decipherFunctions == null) {
             String decipherFunctUrl = "https://s.ytimg.com/yts/jsbin/" + decipherJsFileName;
 
-            BufferedReader reader = null;
             String javascriptFile;
-            URL url = new URL(decipherFunctUrl);
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestProperty("User-Agent", USER_AGENT);
-            try {
-                reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                StringBuilder sb = new StringBuilder("");
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line);
-                    sb.append(" ");
-                }
-                javascriptFile = sb.toString();
-            } finally {
-                if (reader != null)
-                    reader.close();
-                urlConnection.disconnect();
+            String[] result = OkHttpHelper.makeRequest(mClient, decipherFunctUrl).split("\n");
+            StringBuilder sb = new StringBuilder("");
+            for (String line : result) {
+                if (TextUtils.isEmpty(line))
+                    continue;
+                sb.append(line);
+                sb.append(" ");
             }
+            javascriptFile = sb.toString();
 
             if (LOGGING)
                 Log.d(LOG_TAG, "Decipher FunctURL: " + decipherFunctUrl);

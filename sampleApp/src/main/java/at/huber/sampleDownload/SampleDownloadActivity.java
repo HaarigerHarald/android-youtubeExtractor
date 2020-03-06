@@ -21,7 +21,7 @@ import at.huber.youtubeExtractor.YtFile;
 
 public class SampleDownloadActivity extends Activity {
 
-    private static String youtubeLink;
+    private static String youtubeLink = "https://www.youtube.com/watch?v=DZrTFdUcWHY";
 
     private LinearLayout mainLayout;
     private ProgressBar mainProgressBar;
@@ -52,8 +52,9 @@ public class SampleDownloadActivity extends Activity {
         } else if (savedInstanceState != null && youtubeLink != null) {
             getYoutubeDownloadUrl(youtubeLink);
         } else {
-            finish();
+            //finish();
         }
+        getYoutubeDownloadUrl(youtubeLink);
     }
 
     private void getYoutubeDownloadUrl(String youtubeLink) {
