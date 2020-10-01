@@ -74,14 +74,14 @@ public class YouTubeExtractor {
     private static final Pattern patItag = Pattern.compile("itag=([0-9]+?)(&|\\z)");
     private static final Pattern patEncSig = Pattern.compile("s=(.{10,}?)(\\\\\\\\u0026|\\z)");
     private static final Pattern patUrl = Pattern.compile("\"url\"\\s*:\\s*\"(.+?)\"");
-    private static final Pattern patCipher = Pattern.compile("\"cipher\"\\s*:\\s*\"(.+?)\"");
+    private static final Pattern patCipher = Pattern.compile("\"signatureCipher\"\\s*:\\s*\"(.+?)\"");
     private static final Pattern patCipherUrl = Pattern.compile("url=(.+?)(\\\\\\\\u0026|\\z)");
 
     private static final Pattern patVariableFunction = Pattern.compile("([{; =])([a-zA-Z$][a-zA-Z0-9$]{0,2})\\.([a-zA-Z$][a-zA-Z0-9$]{0,2})\\(");
     private static final Pattern patFunction = Pattern.compile("([{; =])([a-zA-Z$_][a-zA-Z0-9$]{0,2})\\(");
 
     private static final Pattern patDecryptionJsFile = Pattern.compile("\\\\/s\\\\/player\\\\/([^\"]+?)\\.js");
-    private static final Pattern patSignatureDecFunction = Pattern.compile("\\b([\\w$]{2})\\s*=\\s*function\\((\\w+)\\)\\{\\s*\\2=\\s*\\2\\.split\\(\"\"\\)\\s*;");
+    private static final Pattern patSignatureDecFunction = Pattern.compile("(?:\\b|[^a-zA-Z0-9$])([a-zA-Z0-9$]{2})\\s*=\\s*function\\(\\s*a\\s*\\)\\s*\\{\\s*a\\s*=\\s*a\\.split\\(\\s*\"\"\\s*\\)");
 
     // Sometimes info can be with restrictions https://github.com/rg3/youtube-dl/issues/7362#issuecomment-153782704
     private static final String[] EL_TYPE = new String[]{"info", "embedded, detailpage"};
