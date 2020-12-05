@@ -82,6 +82,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     private static final Pattern patFunction = Pattern.compile("([{; =])([a-zA-Z$_][a-zA-Z0-9$]{0,2})\\(");
 
     private static final Pattern patDecryptionJsFile = Pattern.compile("\\\\/s\\\\/player\\\\/([^\"]+?)\\.js");
+    private static final Pattern patDecryptionJsFileWithoutSlash = Pattern.compile("/s/player/([^\"]+?).js");
     private static final Pattern patSignatureDecFunction = Pattern.compile("(?:\\b|[^a-zA-Z0-9$])([a-zA-Z0-9$]{2})\\s*=\\s*function\\(\\s*a\\s*\\)\\s*\\{\\s*a\\s*=\\s*a\\.split\\(\\s*\"\"\\s*\\)");
 
     private static final SparseArray<Format> FORMAT_MAP = new SparseArray<>();
@@ -310,6 +311,8 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
             encSignatures = new SparseArray<>();
 
             mat = patDecryptionJsFile.matcher(streamMap);
+            if(!mat.find())
+                mat = patDecryptionJsFileWithoutSlash.matcher(streamMap);
             if (mat.find()) {
                 curJsFileName = mat.group(0).replace("\\/", "/");
                 if (decipherJsFileName == null || !decipherJsFileName.equals(curJsFileName)) {
@@ -420,8 +423,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     private boolean decipherSignature(final SparseArray<String> encSignatures) throws IOException {
         // Assume the functions don't change that much
         if (decipherFunctionName == null || decipherFunctions == null) {
-            //String decipherFunctUrl = "https://youtube.com" + decipherJsFileName;
-            String decipherFunctUrl = "https://www.youtube.com/watch?v=" + decipherJsFileName;
+            String decipherFunctUrl = "https://youtube.com" + decipherJsFileName;
 
             BufferedReader reader = null;
             String javascriptFile;
