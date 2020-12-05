@@ -420,7 +420,8 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     private boolean decipherSignature(final SparseArray<String> encSignatures) throws IOException {
         // Assume the functions don't change that much
         if (decipherFunctionName == null || decipherFunctions == null) {
-            String decipherFunctUrl = "https://youtube.com" + decipherJsFileName;
+            //String decipherFunctUrl = "https://youtube.com" + decipherJsFileName;
+            String decipherFunctUrl = "https://www.youtube.com/watch?v=" + decipherJsFileName;
 
             BufferedReader reader = null;
             String javascriptFile;
