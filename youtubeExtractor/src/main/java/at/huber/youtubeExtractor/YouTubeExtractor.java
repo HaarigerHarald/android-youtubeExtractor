@@ -341,8 +341,11 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
                 if (mat2.find()) {
                     url = URLDecoder.decode(mat2.group(1), "UTF-8");
                     mat2 = patEncSig.matcher(cipher);
-                    if (mat2.find()) {
+                    if (mat2.find()) {                        
                         sig = URLDecoder.decode(mat2.group(1), "UTF-8");
+                        // fix issue #165
+                        sig = sig.replace("\\u0026", "&");
+                        sig = sig.split("&")[0];
                     } else {
                         continue;
                     }
