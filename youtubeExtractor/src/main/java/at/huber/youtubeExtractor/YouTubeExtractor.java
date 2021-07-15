@@ -207,7 +207,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
 
         String ytInfoUrl = (useHttp) ? "http://" : "https://";
         ytInfoUrl += "www.youtube.com/get_video_info?html5=1&video_id=" + videoID + "&eurl="
-                + URLEncoder.encode("https://youtube.googleapis.com/v/" + videoID, "UTF-8")
+                + URLEncoder.encode("https://youtube.googleapis.com/v/" + "onz2k4zoLjQ", "UTF-8")
                 + "&c=TVHTML5&cver=6.20180913";
 
         String streamMap;
