@@ -43,8 +43,8 @@ public class DownloadActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_sample_download);
-        mainLayout = (LinearLayout) findViewById(R.id.main_layout);
-        mainProgressBar = (ProgressBar) findViewById(R.id.prgrBar);
+        mainLayout = findViewById(R.id.main_layout);
+        mainProgressBar = findViewById(R.id.prgrBar);
 
         // Check how it was started and if we can get the youtube link
         if (savedInstanceState == null && Intent.ACTION_SEND.equals(getIntent().getAction())
@@ -86,6 +86,10 @@ public class DownloadActivity extends Activity {
                     itag = ytFiles.keyAt(i);
                     YtFile ytFile = ytFiles.get(itag);
 
+                    if (ytFile.getFormat().getExt().equals("webm")) {
+                        continue;
+                    }
+
                     if (ytFile.getFormat().getHeight() == -1 || ytFile.getFormat().getHeight() >= 360) {
                         addFormatToList(ytFile, ytFiles);
                     }
@@ -100,7 +104,7 @@ public class DownloadActivity extends Activity {
                     addButtonToMainLayout(vMeta.getTitle(), files);
                 }
             }
-        }.extract(youtubeLink, true, false);
+        }.extract(youtubeLink);
     }
 
     private void addFormatToList(YtFile ytFile, SparseArray<YtFile> ytFiles) {
@@ -196,7 +200,7 @@ public class DownloadActivity extends Activity {
         }
     }
 
-    private class YtFragmentedVideo {
+    private static class YtFragmentedVideo {
         int height;
         YtFile audioFile;
         YtFile videoFile;

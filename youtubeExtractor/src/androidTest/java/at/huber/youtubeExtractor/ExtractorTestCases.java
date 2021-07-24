@@ -52,13 +52,13 @@ public class ExtractorTestCases {
         extractorTest("https://www.youtube.com/watch?v=e8X3ACToii0", expMeta);
     }
 
-    @Test
-    public void testAgeRestrictVideo() throws Throwable {
-        VideoMeta expMeta = new VideoMeta("61Ev-YvBw2c", "Test video for age-restriction",
-                "jpdemoA", "UC95NqtFsDZKlmzOJmZi_g6Q", 14, 0, false, "");
-        extractorTest("http://www.youtube.com/watch?v=61Ev-YvBw2c", expMeta);
-        // extractorTestDashManifest("http://www.youtube.com/watch?v=61Ev-YvBw2c");
-    }
+//    @Test
+//    public void testAgeRestrictVideo() throws Throwable {
+//        VideoMeta expMeta = new VideoMeta("61Ev-YvBw2c", "Test video for age-restriction",
+//                "jpdemoA", "UC95NqtFsDZKlmzOJmZi_g6Q", 14, 0, false, "");
+//        extractorTest("http://www.youtube.com/watch?v=61Ev-YvBw2c", expMeta);
+//        // extractorTestDashManifest("http://www.youtube.com/watch?v=61Ev-YvBw2c");
+//    }
 
 //    public void testLiveStream() throws Throwable {
 //        VideoMeta expMeta = new VideoMeta("ddFvjfvPnqk", "NASA Live Stream - Earth From Space (Full Screen) | ISS LIVE FEED - Debunk Flat Earth",
@@ -97,7 +97,7 @@ public class ExtractorTestCases {
                         signal.countDown();
                     }
                 };
-                ytEx.extract(youtubeLink, true, true);
+                ytEx.extract(youtubeLink);
             }
         });
 
@@ -143,7 +143,7 @@ public class ExtractorTestCases {
                         signal.countDown();
                     }
                 };
-                ytEx.extract(youtubeLink, false, true);
+                ytEx.extract(youtubeLink);
             }
         });
 
