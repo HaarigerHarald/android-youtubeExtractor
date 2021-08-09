@@ -38,32 +38,12 @@ new YouTubeExtractor(this) {
 	    String downloadUrl = ytFiles.get(itag).getUrl();
         }
     }
-}.extract(youtubeLink, true, true);
+}.extract(youtubeLink);
 ```
 
 The ytFiles SparseArray is a map of available media files for one YouTube video, accessible by their itag 
 value. For further infos about itags and their associated formats refer to: [Wikipedia - YouTube Quality and formats](http://en.wikipedia.org/wiki/YouTube#Quality_and_formats).
 
-## Configuration
-    
-There are 2 configuration options set via extract:
-    
-```java
-extract(youtubeLink, /*parseDashManifest*/ true, /*includeWebm*/ true);
-```
-
-**parseDashManifest**
-
-The dash manifest contains dash streams and usually additionally the higher quality audio formats.
-But the main difference is that dash streams from the dash manifest seem to not get throttled by the YouTube servers.
-If you don't use the dash streams at all leave it deactivated since it needs to download additional files for extraction.
-
-Known issue: the dash manifest can't be parsed for signature enciphered videos
-
-
-**includeWebm**
-
-If set to false it excludes the webm container format streams from the result.
 
 ## Requirements
 
@@ -74,6 +54,7 @@ Not signature enciphered Videos may work on lower Android versions (untested).
 
 Those videos aren't working:
 
+* Age restricted videos
 * Everything private (private videos, bought movies, ...)
 * Unavailable in your country
 * RTMPE urls (very rare)

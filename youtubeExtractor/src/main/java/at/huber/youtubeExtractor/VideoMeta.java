@@ -1,20 +1,22 @@
 package at.huber.youtubeExtractor;
 
+import android.support.annotation.NonNull;
+
 public class VideoMeta {
 
     private static final String IMAGE_BASE_URL = "http://i.ytimg.com/vi/";
 
-    private String videoId;
-    private String title;
-    private String shortDescript;
+    private final String videoId;
+    private final String title;
+    private final String shortDescript;
 
-    private String author;
-    private String channelId;
+    private final String author;
+    private final String channelId;
 
-    private long videoLength;
-    private long viewCount;
+    private final long videoLength;
+    private final long viewCount;
 
-    private boolean isLiveStream;
+    private final boolean isLiveStream;
 
     protected VideoMeta(String videoId, String title, String author, String channelId,
                         long videoLength, long viewCount, boolean isLiveStream, String shortDescript) {
@@ -119,6 +121,7 @@ public class VideoMeta {
         return result;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "VideoMeta{" +

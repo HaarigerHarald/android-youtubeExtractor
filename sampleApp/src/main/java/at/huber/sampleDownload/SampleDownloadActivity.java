@@ -31,8 +31,8 @@ public class SampleDownloadActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_sample_download);
-        mainLayout = (LinearLayout) findViewById(R.id.main_layout);
-        mainProgressBar = (ProgressBar) findViewById(R.id.prgrBar);
+        mainLayout = findViewById(R.id.main_layout);
+        mainProgressBar = findViewById(R.id.prgrBar);
 
         // Check how it was started and if we can get the youtube link
         if (savedInstanceState == null && Intent.ACTION_SEND.equals(getIntent().getAction())
@@ -80,7 +80,7 @@ public class SampleDownloadActivity extends Activity {
                     }
                 }
             }
-        }.extract(youtubeLink, true, false);
+        }.extract(youtubeLink);
     }
 
     private void addButtonToMainLayout(final String videoTitle, final YtFile ytfile) {

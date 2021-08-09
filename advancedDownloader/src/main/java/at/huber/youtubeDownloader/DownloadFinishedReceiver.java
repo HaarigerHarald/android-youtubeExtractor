@@ -251,7 +251,7 @@ public class DownloadFinishedReceiver extends BroadcastReceiver {
         con.sendBroadcast(scanFileIntent);
     }
 
-    private class DownloadStatus {
+    private static class DownloadStatus {
         String otherFilePath;
         boolean readyToMerge = false;
         boolean hasVideo;
