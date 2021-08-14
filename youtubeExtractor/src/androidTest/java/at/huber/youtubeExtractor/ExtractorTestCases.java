@@ -71,6 +71,7 @@ public class ExtractorTestCases {
             throws Throwable {
         final CountDownLatch signal = new CountDownLatch(1);
         YouTubeExtractor.LOGGING = true;
+        YouTubeExtractor.CACHING = false;
 
         testUrl = null;
 
@@ -119,6 +120,7 @@ public class ExtractorTestCases {
             throws Throwable {
         final CountDownLatch signal = new CountDownLatch(1);
         YouTubeExtractor.LOGGING = true;
+        YouTubeExtractor.CACHING = false;
 
         testUrl = null;
 
