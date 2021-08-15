@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
 
 public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArray<YtFile>> {
 
-    static boolean CACHING = false;
+    static boolean CACHING = true;
     static boolean LOGGING = false;
 
     private final static String LOG_TAG = "YouTubeExtractor";
