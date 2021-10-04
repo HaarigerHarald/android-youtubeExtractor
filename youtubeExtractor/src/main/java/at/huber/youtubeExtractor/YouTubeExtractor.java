@@ -235,7 +235,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
                 // FORMAT_STREAM_TYPE_OTF(otf=1) requires downloading the init fragment (adding
                 // `&sq=0` to the URL) and parsing emsg box to determine the number of fragment that
                 // would subsequently requested with (`&sq=N`) (cf. youtube-dl)
-                String type = format.getString("type");
+                String type = format.optString("type");
                 if (type != null && type.equals("FORMAT_STREAM_TYPE_OTF"))
                     continue;
 
@@ -264,7 +264,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
 
                 JSONObject adaptiveFormat = adaptiveFormats.getJSONObject(i);
 
-                String type = adaptiveFormat.getString("type");
+                String type = adaptiveFormat.optString("type");
                 if (type != null && type.equals("FORMAT_STREAM_TYPE_OTF"))
                     continue;
 
