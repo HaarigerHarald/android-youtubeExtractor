@@ -14,7 +14,8 @@
             android:name=".DownloadActivity"
             android:theme="@style/AppTheme"
             android:excludeFromRecents="true"
-            android:taskAffinity="">
+            android:taskAffinity=""
+            android:exported="false">
 
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
