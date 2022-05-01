@@ -227,62 +227,66 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
             JSONObject ytPlayerResponse = new JSONObject(mat.group(1));
             JSONObject streamingData = ytPlayerResponse.getJSONObject("streamingData");
 
-            JSONArray formats = streamingData.getJSONArray("formats");
-            for (int i = 0; i < formats.length(); i++) {
+            if (streamingData.has("formats")) {
+                JSONArray formats = streamingData.getJSONArray("formats");
+                for (int i = 0; i < formats.length(); i++) {
 
-                JSONObject format = formats.getJSONObject(i);
+                    JSONObject format = formats.getJSONObject(i);
 
-                // FORMAT_STREAM_TYPE_OTF(otf=1) requires downloading the init fragment (adding
-                // `&sq=0` to the URL) and parsing emsg box to determine the number of fragment that
-                // would subsequently requested with (`&sq=N`) (cf. youtube-dl)
-                String type = format.optString("type");
-                if (type != null && type.equals("FORMAT_STREAM_TYPE_OTF"))
-                    continue;
+                    // FORMAT_STREAM_TYPE_OTF(otf=1) requires downloading the init fragment (adding
+                    // `&sq=0` to the URL) and parsing emsg box to determine the number of fragment that
+                    // would subsequently requested with (`&sq=N`) (cf. youtube-dl)
+                    String type = format.optString("type");
+                    if (type != null && type.equals("FORMAT_STREAM_TYPE_OTF"))
+                        continue;
 
-                int itag = format.getInt("itag");
+                    int itag = format.getInt("itag");
 
-                if (FORMAT_MAP.get(itag) != null) {
-                    if (format.has("url")) {
-                        String url = format.getString("url").replace("\\u0026", "&");
-                        ytFiles.append(itag, new YtFile(FORMAT_MAP.get(itag), url));
-                    } else if (format.has("signatureCipher")) {
-
-                        mat = patSigEncUrl.matcher(format.getString("signatureCipher"));
-                        Matcher matSig = patSignature.matcher(format.getString("signatureCipher"));
-                        if (mat.find() && matSig.find()) {
-                            String url = URLDecoder.decode(mat.group(1), "UTF-8");
-                            String signature = URLDecoder.decode(matSig.group(1), "UTF-8");
+                    if (FORMAT_MAP.get(itag) != null) {
+                        if (format.has("url")) {
+                            String url = format.getString("url").replace("\\u0026", "&");
                             ytFiles.append(itag, new YtFile(FORMAT_MAP.get(itag), url));
-                            encSignatures.append(itag, signature);
+                        } else if (format.has("signatureCipher")) {
+
+                            mat = patSigEncUrl.matcher(format.getString("signatureCipher"));
+                            Matcher matSig = patSignature.matcher(format.getString("signatureCipher"));
+                            if (mat.find() && matSig.find()) {
+                                String url = URLDecoder.decode(mat.group(1), "UTF-8");
+                                String signature = URLDecoder.decode(matSig.group(1), "UTF-8");
+                                ytFiles.append(itag, new YtFile(FORMAT_MAP.get(itag), url));
+                                encSignatures.append(itag, signature);
+                            }
                         }
                     }
                 }
             }
 
-            JSONArray adaptiveFormats = streamingData.getJSONArray("adaptiveFormats");
-            for (int i = 0; i < adaptiveFormats.length(); i++) {
+            if (streamingData.has("adaptiveFormats")) {
+                JSONArray adaptiveFormats = streamingData.getJSONArray("adaptiveFormats");
+                for (int i = 0; i < adaptiveFormats.length(); i++) {
 
-                JSONObject adaptiveFormat = adaptiveFormats.getJSONObject(i);
+                    JSONObject adaptiveFormat = adaptiveFormats.getJSONObject(i);
 
-                String type = adaptiveFormat.optString("type");
-                if (type != null && type.equals("FORMAT_STREAM_TYPE_OTF"))
-                    continue;
+                    String type = adaptiveFormat.optString("type");
+                    if (type != null && type.equals("FORMAT_STREAM_TYPE_OTF"))
+                        continue;
 
-                int itag = adaptiveFormat.getInt("itag");
+                    int itag = adaptiveFormat.getInt("itag");
 
-                if (FORMAT_MAP.get(itag) != null) {
-                    if (adaptiveFormat.has("url")) {
-                        String url = adaptiveFormat.getString("url").replace("\\u0026", "&");
-                        ytFiles.append(itag, new YtFile(FORMAT_MAP.get(itag), url));
-                    } else if (adaptiveFormat.has("signatureCipher")) {
-
-                        mat = patSigEncUrl.matcher(adaptiveFormat.getString("signatureCipher"));
-                        Matcher matSig = patSignature.matcher(adaptiveFormat.getString("signatureCipher"));
-                        if (mat.find() && matSig.find()) {
-                            String url = URLDecoder.decode(mat.group(1), "UTF-8");
-                            String signature = URLDecoder.decode(matSig.group(1), "UTF-8");
+                    if (FORMAT_MAP.get(itag) != null) {
+                        if (adaptiveFormat.has("url")) {
+                            String url = adaptiveFormat.getString("url").replace("\\u0026", "&");
                             ytFiles.append(itag, new YtFile(FORMAT_MAP.get(itag), url));
-                            encSignatures.append(itag, signature);
+                        } else if (adaptiveFormat.has("signatureCipher")) {
+
+                            mat = patSigEncUrl.matcher(adaptiveFormat.getString("signatureCipher"));
+                            Matcher matSig = patSignature.matcher(adaptiveFormat.getString("signatureCipher"));
+                            if (mat.find() && matSig.find()) {
+                                String url = URLDecoder.decode(mat.group(1), "UTF-8");
+                                String signature = URLDecoder.decode(matSig.group(1), "UTF-8");
+                                ytFiles.append(itag, new YtFile(FORMAT_MAP.get(itag), url));
+                                encSignatures.append(itag, signature);
+                            }
                         }
                     }
                 }
