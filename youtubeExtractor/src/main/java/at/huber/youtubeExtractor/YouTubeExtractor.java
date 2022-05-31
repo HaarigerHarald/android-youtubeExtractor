@@ -202,7 +202,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
 
         BufferedReader reader = null;
         HttpURLConnection urlConnection = null;
-        URL getUrl = new URL("https://youtube.com/watch?v=" + videoID);
+        URL getUrl = new URL("https://www.youtube.com/watch?v=" + videoID);
         try {
             urlConnection = (HttpURLConnection) getUrl.openConnection();
             urlConnection.setRequestProperty("User-Agent", USER_AGENT);
