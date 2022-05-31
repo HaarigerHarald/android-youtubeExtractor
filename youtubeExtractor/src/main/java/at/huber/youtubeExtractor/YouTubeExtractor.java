@@ -206,6 +206,7 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
         try {
             urlConnection = (HttpURLConnection) getUrl.openConnection();
             urlConnection.setRequestProperty("User-Agent", USER_AGENT);
+            urlConnection.setUseCaches(true);
             reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
             StringBuilder sbPageHtml = new StringBuilder();
             String line;
