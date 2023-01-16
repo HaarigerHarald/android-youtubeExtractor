@@ -57,7 +57,9 @@ public abstract class YouTubeExtractor extends AsyncTask<String, Void, SparseArr
     private final Lock lock = new ReentrantLock();
     private final Condition jsExecuting = lock.newCondition();
 
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.98 Safari/537.36";
+    private static final String USER_AGENT = "Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) 
+AppleWebKit/535.19 (KHTML, like Gecko) 
+Chrome/18.0.1025.133 Mobile Safari/535.19";
 
     private static final Pattern patYouTubePageLink = Pattern.compile("(http|https)://(www\\.|m.|)youtube\\.com/watch\\?v=(.+?)( |\\z|&)");
     private static final Pattern patYouTubeShortLink = Pattern.compile("(http|https)://(www\\.|)youtu.be/(.+?)( |\\z|&)");
