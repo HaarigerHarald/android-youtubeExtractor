@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId "at.huber.youtubeDownloader"
-        minSdkVersion 14
-        targetSdkVersion 22
+        minSdkVersion 16
+        targetSdkVersion 33
         versionCode 5
         versionName "2.1"
     }
